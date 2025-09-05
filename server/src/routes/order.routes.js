@@ -6,9 +6,10 @@ import {
   verifyPaymentAndUpdateOrder,
   getMyOrders,
   getOrders,
-  updateOrderToDelivered, // --- NEW IMPORT ---
+  getMySales,
+  updateOrderStatus, // --- NEW IMPORT ---
 } from '../controllers/order.controller.js';
-import { protect, admin } from '../middlewares/auth.middleware.js';
+import { protect, admin, seller } from '../middlewares/auth.middleware.js';
 
 const router = express.Router();
 
@@ -28,6 +29,12 @@ router.post('/', protect, addOrderItems);
 // @access  Private
 router.get('/myorders', protect, getMyOrders);
 
+// --- SELLER ROUTE: GET SELLER'S SALES ---
+// @route   GET /api/orders/mysales
+// @desc    Get all orders that include seller's products
+// @access  Private/Seller
+router.get('/mysales', protect, seller, getMySales);
+
 // @route   GET /api/orders/:id
 // @desc    Get order by ID
 // @access  Private
@@ -44,10 +51,10 @@ router.post('/:id/create-razorpay-order', protect, createRazorpayOrder);
 // @access  Private
 router.post('/:id/verify-payment', protect, verifyPaymentAndUpdateOrder);
 
-// --- ADMIN ROUTE: UPDATE ORDER TO DELIVERED ---
-// @route   PUT /api/orders/:id/deliver
-// @desc    Update order status to Delivered
-// @access  Private/Admin
-router.put('/:id/deliver', protect, admin, updateOrderToDelivered);
+// --- FLEXIBLE STATUS UPDATE ROUTE (REPLACES /deliver) ---
+// @route   PUT /api/orders/:id/status
+// @desc    Update order status (Seller/Admin)
+// @access  Private/SellerOrAdmin
+router.put('/:id/status', protect, seller, updateOrderStatus);
 
 export default router;

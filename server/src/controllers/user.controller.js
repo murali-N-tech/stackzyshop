@@ -25,7 +25,7 @@ const registerUser = async (req, res) => {
         name: user.name,
         email: user.email,
         isAdmin: user.isAdmin,
-        role: user.role, // Add user role to the response
+        role: user.role, // Add user role to response
         token: token,
       });
     } else {
@@ -55,7 +55,7 @@ const loginUser = async (req, res) => {
         name: user.name,
         email: user.email,
         isAdmin: user.isAdmin,
-        role: user.role, // Add user role to the response
+        role: user.role,
         token: token,
       });
     } else {
@@ -81,6 +81,8 @@ const getUserProfile = async (req, res) => {
         name: user.name,
         email: user.email,
         isAdmin: user.isAdmin,
+        role: user.role,
+        wishlist: user.wishlist || [],
       });
     } else {
       res.status(404).json({ message: 'User not found' });
@@ -126,11 +128,43 @@ const deleteUser = async (req, res) => {
   }
 };
 
+// --- TOGGLE WISHLIST ---
+// @desc    Add/Remove product from wishlist
+// @route   PUT /api/users/wishlist
+// @access  Private
+const toggleWishlist = async (req, res) => {
+  try {
+    const { productId } = req.body;
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Check if product already in wishlist
+    const index = user.wishlist.indexOf(productId);
+
+    if (index === -1) {
+      // If not present, add it
+      user.wishlist.push(productId);
+      await user.save();
+      return res.json({ message: 'Product added to wishlist', wishlist: user.wishlist });
+    } else {
+      // If present, remove it
+      user.wishlist.splice(index, 1);
+      await user.save();
+      return res.json({ message: 'Product removed from wishlist', wishlist: user.wishlist });
+    }
+  } catch (error) {
+    res.status(500).json({ message: `Server Error: ${error.message}` });
+  }
+};
+
 export {
   registerUser,
   loginUser,
   getUserProfile,
   getUsers,
   deleteUser,
+  toggleWishlist,
 };
-

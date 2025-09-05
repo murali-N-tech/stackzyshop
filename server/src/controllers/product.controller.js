@@ -1,4 +1,5 @@
 import Product from '../models/product.model.js';
+import Seller from '../models/seller.model.js'; // --- IMPORT SELLER MODEL ---
 
 // @desc    Fetch all products with pagination, search, and filters
 // @route   GET /api/products
@@ -30,14 +31,32 @@ const getProducts = async (req, res) => {
   }
 };
 
-// @desc    Fetch a single product by ID
+// @desc    Fetch a single product by ID (with seller info)
 // @route   GET /api/products/:id
 // @access  Public
 const getProductById = async (req, res) => {
   try {
-    const product = await Product.findById(req.params.id);
+    // Populate user basic info
+    const product = await Product.findById(req.params.id).populate(
+      'user',
+      'name email'
+    );
+
     if (product) {
-      res.json(product);
+      // Fetch seller profile
+      const sellerProfile = await Seller.findOne({ user: product.user._id });
+
+      // Merge seller details
+      const productWithSeller = {
+        ...product.toObject(),
+        seller: {
+          name: product.user.name,
+          email: product.user.email,
+          shopName: sellerProfile ? sellerProfile.shopName : 'Official Store',
+        },
+      };
+
+      res.json(productWithSeller);
     } else {
       res.status(404).json({ message: 'Product not found' });
     }
@@ -51,7 +70,6 @@ const getProductById = async (req, res) => {
 // @access  Private/SellerOrAdmin
 const createProduct = async (req, res) => {
   try {
-    // FIXED: Added placeholder text to satisfy required fields in the model
     const product = new Product({
       name: 'New Product',
       price: 0,
@@ -63,6 +81,7 @@ const createProduct = async (req, res) => {
       numReviews: 0,
       description: 'Sample Description',
     });
+
     const createdProduct = await product.save();
     res.status(201).json(createdProduct);
   } catch (error) {
@@ -75,13 +94,18 @@ const createProduct = async (req, res) => {
 // @access  Private/SellerOrAdmin
 const updateProduct = async (req, res) => {
   try {
-    const { name, price, description, image, brand, category, countInStock } = req.body;
+    const { name, price, description, image, brand, category, countInStock } =
+      req.body;
     const product = await Product.findById(req.params.id);
 
     if (product) {
-      if (product.user.toString() !== req.user._id.toString() && !req.user.isAdmin) {
+      if (
+        product.user.toString() !== req.user._id.toString() &&
+        !req.user.isAdmin
+      ) {
         return res.status(401).json({ message: 'Not authorized' });
       }
+
       product.name = name;
       product.price = price;
       product.description = description;
@@ -89,6 +113,7 @@ const updateProduct = async (req, res) => {
       product.brand = brand;
       product.category = category;
       product.countInStock = countInStock;
+
       const updatedProduct = await product.save();
       res.json(updatedProduct);
     } else {
@@ -105,10 +130,15 @@ const updateProduct = async (req, res) => {
 const deleteProduct = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
+
     if (product) {
-      if (product.user.toString() !== req.user._id.toString() && !req.user.isAdmin) {
+      if (
+        product.user.toString() !== req.user._id.toString() &&
+        !req.user.isAdmin
+      ) {
         return res.status(401).json({ message: 'Not authorized' });
       }
+
       await Product.deleteOne({ _id: product._id });
       res.json({ message: 'Product removed' });
     } else {
@@ -126,18 +156,29 @@ const createProductReview = async (req, res) => {
   try {
     const { rating, comment } = req.body;
     const product = await Product.findById(req.params.id);
+
     if (product) {
       const alreadyReviewed = product.reviews.find(
         (r) => r.user.toString() === req.user._id.toString()
       );
+
       if (alreadyReviewed) {
         return res.status(400).json({ message: 'Product already reviewed' });
       }
-      const review = { name: req.user.name, rating: Number(rating), comment, user: req.user._id };
+
+      const review = {
+        name: req.user.name,
+        rating: Number(rating),
+        comment,
+        user: req.user._id,
+      };
+
       product.reviews.push(review);
       product.numReviews = product.reviews.length;
       product.rating =
-        product.reviews.reduce((acc, item) => item.rating + acc, 0) / product.reviews.length;
+        product.reviews.reduce((acc, item) => item.rating + acc, 0) /
+        product.reviews.length;
+
       await product.save();
       res.status(201).json({ message: 'Review added' });
     } else {
@@ -168,10 +209,12 @@ const getMyProducts = async (req, res) => {
     const pageSize = 8;
     const page = Number(req.query.pageNumber) || 1;
     const filter = { user: req.user._id };
+
     const count = await Product.countDocuments(filter);
     const products = await Product.find(filter)
       .limit(pageSize)
       .skip(pageSize * (page - 1));
+
     res.json({ products, page, pages: Math.ceil(count / pageSize) });
   } catch (error) {
     res.status(500).json({ message: `Server Error: ${error.message}` });
@@ -214,4 +257,3 @@ export {
   getCategories,
   getBrands,
 };
-

@@ -1,11 +1,10 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-// Load from localStorage if available
 const initialState = localStorage.getItem('cart')
   ? JSON.parse(localStorage.getItem('cart'))
-  : { cartItems: [], shippingAddress: {}, paymentMethod: 'PayPal' };
+  : { cartItems: [], shippingAddress: {}, paymentMethod: 'PayPal', coupon: null };
 
-// Helper function for rounding to 2 decimals
+// Helper function for rounding decimals
 const addDecimals = (num) => {
   return (Math.round(num * 100) / 100).toFixed(2);
 };
@@ -14,7 +13,6 @@ const cartSlice = createSlice({
   name: 'cart',
   initialState,
   reducers: {
-    // --- ADD TO CART ---
     addToCart: (state, action) => {
       const item = action.payload;
       const existItem = state.cartItems.find((x) => x._id === item._id);
@@ -24,60 +22,70 @@ const cartSlice = createSlice({
           x._id === existItem._id ? item : x
         );
       } else {
-        state.cartItems.push(item);
+        state.cartItems = [...state.cartItems, item];
       }
-
       localStorage.setItem('cart', JSON.stringify(state));
     },
-
-    // --- REMOVE FROM CART ---
     removeFromCart: (state, action) => {
-      state.cartItems = state.cartItems.filter(
-        (x) => x._id !== action.payload
-      );
-
+      state.cartItems = state.cartItems.filter((x) => x._id !== action.payload);
       localStorage.setItem('cart', JSON.stringify(state));
     },
-
-    // --- SAVE SHIPPING ADDRESS ---
     saveShippingAddress: (state, action) => {
       state.shippingAddress = action.payload;
       localStorage.setItem('cart', JSON.stringify(state));
     },
-
-    // --- SAVE PAYMENT METHOD ---
     savePaymentMethod: (state, action) => {
       state.paymentMethod = action.payload;
       localStorage.setItem('cart', JSON.stringify(state));
     },
-
-    // --- CLEAR CART ITEMS ---
-    clearCartItems: (state) => {
+    clearCartItems: (state, action) => {
       state.cartItems = [];
+      localStorage.setItem('cart', JSON.stringify(state));
+    },
+    // --- COUPON REDUCERS ---
+    applyCoupon: (state, action) => {
+      state.coupon = action.payload;
+      localStorage.setItem('cart', JSON.stringify(state));
+    },
+    removeCoupon: (state, action) => {
+      state.coupon = null;
       localStorage.setItem('cart', JSON.stringify(state));
     },
   },
 });
 
-// Selector with calculated fields
+// Selector to calculate prices on the fly
 export const selectCart = (state) => {
   const cart = state.cart;
-
+  
   const itemsPrice = addDecimals(
     cart.cartItems.reduce((acc, item) => acc + item.price * item.qty, 0)
   );
-
+  
+  let discount = 0;
+  if (cart.coupon) {
+    if (cart.coupon.discountType === 'Percentage') {
+      discount = (itemsPrice * cart.coupon.discountValue) / 100;
+    } else { // Fixed Amount
+      discount = cart.coupon.discountValue;
+    }
+    // Ensure discount doesn't exceed the total price
+    if (discount > itemsPrice) {
+        discount = itemsPrice;
+    }
+  }
+  
   const shippingPrice = addDecimals(itemsPrice > 100 ? 0 : 10);
-
-  const taxPrice = addDecimals(Number(0.15 * itemsPrice));
-
+  const taxPrice = addDecimals(Number(0.15 * (itemsPrice - discount))); // Tax is calculated on discounted price
+  
   const totalPrice = (
-    Number(itemsPrice) +
+    Number(itemsPrice) -
+    Number(discount) +
     Number(shippingPrice) +
     Number(taxPrice)
   ).toFixed(2);
 
-  return { ...cart, itemsPrice, shippingPrice, taxPrice, totalPrice };
+  return { ...cart, itemsPrice, shippingPrice, taxPrice, discount, totalPrice };
 };
 
 export const {
@@ -86,6 +94,8 @@ export const {
   saveShippingAddress,
   savePaymentMethod,
   clearCartItems,
+  applyCoupon,
+  removeCoupon,
 } = cartSlice.actions;
 
 export default cartSlice.reducer;

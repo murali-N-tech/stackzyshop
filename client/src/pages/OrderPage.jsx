@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import OrderTracker from '../components/OrderTracker'; // --- IMPORT NEW ---
+import Button from '../components/Button';
 
 const OrderPage = () => {
   const { id: orderId } = useParams();
@@ -33,20 +35,21 @@ const OrderPage = () => {
     }
   }, [orderId, userInfo]);
 
-  // --- NEW HANDLER FOR MARKING AS DELIVERED ---
-  const deliverHandler = async () => {
+  // --- NEW HANDLER FOR STATUS UPDATES ---
+  const statusUpdateHandler = async (newStatus) => {
     try {
-      const res = await fetch(`/api/orders/${orderId}/deliver`, {
+      await fetch(`/api/orders/${orderId}/status`, {
         method: 'PUT',
         headers: {
+          'Content-Type': 'application/json',
           Authorization: `Bearer ${userInfo.token}`,
         },
+        body: JSON.stringify({ status: newStatus }),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || 'Could not update order');
-      fetchOrder(); // Refresh after updating
+      // Simple refresh after update (you can optimize with refetch state)
+      window.location.reload();
     } catch (err) {
-      alert(err.message);
+      alert('Failed to update order status.');
     }
   };
 
@@ -56,6 +59,10 @@ const OrderPage = () => {
   return (
     <div className="container mx-auto mt-8">
       <h1 className="text-3xl font-bold mb-4">Order {order._id}</h1>
+
+      {/* --- ORDER TRACKER --- */}
+      <OrderTracker status={order.status} />
+
       <div className="grid md:grid-cols-3 gap-8">
         {/* LEFT SIDE (Shipping, Payment, Items) */}
         <div className="md:col-span-2">
@@ -81,17 +88,6 @@ const OrderPage = () => {
                 {order.shippingAddress.postalCode},{' '}
                 {order.shippingAddress.country}
               </p>
-              <div
-                className={`p-2 mt-2 rounded-md ${
-                  order.isDelivered
-                    ? 'bg-green-100 text-green-800'
-                    : 'bg-red-100 text-red-800'
-                }`}
-              >
-                {order.isDelivered
-                  ? `Delivered on ${order.deliveredAt}`
-                  : 'Not Delivered'}
-              </div>
             </div>
 
             {/* Payment */}
@@ -140,7 +136,7 @@ const OrderPage = () => {
           </div>
         </div>
 
-        {/* RIGHT SIDE (Order Summary + Admin Actions) */}
+        {/* RIGHT SIDE (Order Summary + Management) */}
         <div className="border rounded-lg p-4 h-fit">
           <h2 className="text-2xl font-bold mb-4 text-center">
             Order Summary
@@ -164,18 +160,24 @@ const OrderPage = () => {
             </div>
           </div>
 
-          {/* --- ADMIN ACTIONS SECTION --- */}
-          {userInfo && userInfo.isAdmin && order.isPaid && !order.isDelivered && (
-            <div className="mt-4">
-              <button
-                type="button"
-                className="w-full bg-gray-800 text-white p-3 rounded-md hover:bg-gray-700"
-                onClick={deliverHandler}
-              >
-                Mark As Delivered
-              </button>
-            </div>
-          )}
+          {/* --- SELLER/ADMIN ACTION BLOCK --- */}
+          {userInfo &&
+            (userInfo.role === 'seller' || userInfo.isAdmin) &&
+            order.isPaid && (
+              <div className="mt-6 border-t pt-4">
+                <h3 className="font-bold text-lg mb-2">Manage Order</h3>
+                <select
+                  defaultValue={order.status}
+                  onChange={(e) => statusUpdateHandler(e.target.value)}
+                  className="w-full p-2 border rounded-md"
+                >
+                  <option value="Processing">Processing</option>
+                  <option value="Shipped">Shipped</option>
+                  <option value="Delivered">Delivered</option>
+                  <option value="Cancelled">Cancelled</option>
+                </select>
+              </div>
+            )}
         </div>
       </div>
     </div>

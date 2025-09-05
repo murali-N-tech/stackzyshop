@@ -5,6 +5,7 @@ import {
   getUserProfile,
   getUsers,
   deleteUser,
+  toggleWishlist,
 } from '../controllers/user.controller.js';
 import { protect, admin } from '../middlewares/auth.middleware.js';
 
@@ -18,6 +19,7 @@ router.delete('/:id', protect, admin, deleteUser);
 router.post('/register', registerUser);
 router.post('/login', loginUser);
 router.get('/profile', protect, getUserProfile);
+router.put('/wishlist', protect, toggleWishlist);
 
 
 export default router;

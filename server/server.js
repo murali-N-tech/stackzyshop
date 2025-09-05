@@ -10,6 +10,7 @@ import orderRoutes from './src/routes/order.routes.js';
 import configRoutes from './src/routes/config.routes.js';
 import statsRoutes from './src/routes/stats.routes.js'; // ✅ New config route
 import sellerRoutes from './src/routes/seller.routes.js';
+import couponRoutes from './src/routes/coupon.routes.js';
 
 // --- Initialize Express App ---
 const app = express();
@@ -31,6 +32,7 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/config', configRoutes);
 app.use('/api/stats', statsRoutes); // ✅ Use new config route
 app.use('/api/sellers', sellerRoutes);
+app.use('/api/coupons', couponRoutes);
 
 
 

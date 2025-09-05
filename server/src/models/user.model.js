@@ -16,6 +16,12 @@ const userSchema = new mongoose.Schema(
       default: 'user', // Can be 'user', 'seller', or 'admin'
       enum: ['user', 'seller', 'admin'], // restrict values
     },
+    wishlist: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Product', // This creates a reference to the Product model
+      },
+    ],
   },
   {
     timestamps: true, // Automatically adds createdAt and updatedAt

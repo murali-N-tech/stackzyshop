@@ -23,12 +23,14 @@ import ProductPage from './pages/ProductPage.jsx';
 import CartPage from './pages/CartPage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
 import RegisterPage from './pages/RegisterPage.jsx';
+import SellerPage from './pages/SellerPage.jsx'; // --- IMPORT NEW ---
 
 // Private User Pages
-import CheckoutPage from './pages/CheckoutPage.jsx'; // Unified checkout page
+import CheckoutPage from './pages/CheckoutPage.jsx';
 import OrderPage from './pages/OrderPage';
 import ProfilePage from './pages/ProfilePage';
 import BecomeSellerPage from './pages/BecomeSellerPage';
+import WishlistPage from './pages/WishlistPage';
 
 // Admin Pages
 import DashboardPage from './pages/admin/DashboardPage';
@@ -37,14 +39,16 @@ import ProductListPage from './pages/admin/ProductListPage';
 import ProductEditPage from './pages/admin/ProductEditPage';
 import UserListPage from './pages/admin/UserListPage';
 import SellerListPage from './pages/admin/SellerListPage';
+import CouponListPage from './pages/admin/CouponListPage'; // --- IMPORT NEW PAGE ---
 
 // Seller Pages
 import SellerProductListPage from './pages/seller/ProductListPage';
+import SellerOrderListPage from './pages/seller/OrderListPage'; // --- IMPORT NEW ---
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<App />}>
-      {/* Public Routes */}
+      {/* ---------------- PUBLIC ROUTES ---------------- */}
       <Route index={true} path="/" element={<HomePage />} />
       <Route path="/page/:pageNumber" element={<HomePage />} />
       <Route path="/search/:keyword" element={<HomePage />} />
@@ -53,23 +57,27 @@ const router = createBrowserRouter(
       <Route path="/cart" element={<CartPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
+      <Route path="/seller/:id" element={<SellerPage />} /> {/* --- ADD NEW ROUTE --- */}
+      <Route path="/seller/:id/page/:pageNumber" element={<SellerPage />} /> {/* --- ADD PAGINATION ROUTE --- */}
 
-      {/* Private Routes (Logged-in users) */}
+      {/* ---------------- PRIVATE ROUTES ---------------- */}
       <Route path="" element={<PrivateRoute />}>
         <Route path="/checkout" element={<CheckoutPage />} />
         <Route path="/order/:id" element={<OrderPage />} />
         <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/wishlist" element={<WishlistPage />} />
         <Route path="/become-seller" element={<BecomeSellerPage />} />
       </Route>
-      
-      {/* Seller Routes (for sellers and admins) */}
+
+      {/* ---------------- SELLER ROUTES ---------------- */}
       <Route path="" element={<SellerRoute />}>
         <Route path="/seller/productlist" element={<SellerProductListPage />} />
         <Route path="/seller/productlist/:pageNumber" element={<SellerProductListPage />} />
         <Route path="/seller/product/:id/edit" element={<ProductEditPage />} />
+        <Route path="/seller/orderlist" element={<SellerOrderListPage />} /> {/* --- ADD NEW ROUTE --- */}
       </Route>
 
-      {/* Admin Routes (for admins only) */}
+      {/* ---------------- ADMIN ROUTES ---------------- */}
       <Route path="" element={<AdminRoute />}>
         <Route path="/admin/dashboard" element={<DashboardPage />} />
         <Route path="/admin/orderlist" element={<OrderListPage />} />
@@ -78,6 +86,7 @@ const router = createBrowserRouter(
         <Route path="/admin/product/:id/edit" element={<ProductEditPage />} />
         <Route path="/admin/userlist" element={<UserListPage />} />
         <Route path="/admin/sellerlist" element={<SellerListPage />} />
+        <Route path="/admin/couponlist" element={<CouponListPage />} /> {/* --- ADDED NEW ROUTE --- */}
       </Route>
     </Route>
   )
@@ -92,4 +101,3 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     </Provider>
   </React.StrictMode>
 );
-
