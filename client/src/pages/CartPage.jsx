@@ -88,7 +88,7 @@ const CartPage = () => {
                         <Link to={`/product/${item._id}`} className="font-semibold text-lg text-gray-800 hover:text-blue-600">
                           {item.name}
                         </Link>
-                        <p className="text-gray-600 font-bold mt-1">${item.price}</p>
+                        <p className="text-gray-600 font-bold mt-1">₹{item.price}</p>
                       </div>
                     </div>
                     <div className="flex items-center space-x-6">
@@ -101,7 +101,7 @@ const CartPage = () => {
                             <option key={x + 1} value={x + 1}>Qty: {x + 1}</option>
                           ))}
                         </select>
-                        <p className="font-semibold w-24 text-center text-lg">${(item.qty * item.price).toFixed(2)}</p>
+                        <p className="font-semibold w-24 text-center text-lg">₹{(item.qty * item.price).toFixed(2)}</p>
                        <button onClick={() => removeFromCartHandler(item._id)} className="text-gray-400 hover:text-red-600 transition-colors">
                          <FaTrash size={20} />
                        </button>
@@ -119,17 +119,17 @@ const CartPage = () => {
                 <div className="space-y-3 text-gray-700 mb-6">
                   <div className="flex justify-between">
                     <span>Subtotal ({cartItems.reduce((acc, item) => acc + item.qty, 0)} items)</span>
-                    <span className="font-semibold">${itemsPrice}</span>
+                    <span className="font-semibold">₹{itemsPrice}</span>
                   </div>
                   {discount > 0 && (
                     <div className="flex justify-between text-green-600">
                       <span>Discount ({coupon.code})</span>
-                      <span className="font-semibold">-${discount.toFixed(2)}</span>
+                      <span className="font-semibold">-₹{discount.toFixed(2)}</span>
                     </div>
                   )}
                   <div className="flex justify-between font-bold text-xl border-t pt-4 mt-4">
                     <span>Total</span>
-                    <span>${totalPrice}</span>
+                    <span>₹{totalPrice}</span>
                   </div>
                 </div>
 

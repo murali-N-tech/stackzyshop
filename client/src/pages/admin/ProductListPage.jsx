@@ -105,7 +105,7 @@ const ProductListPage = () => {
                   <tr key={product._id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-500">{product._id}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{product.name}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 font-semibold">${product.price.toFixed(2)}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 font-semibold">₹{product.price.toFixed(2)}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{product.category}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{product.brand}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium flex gap-4">

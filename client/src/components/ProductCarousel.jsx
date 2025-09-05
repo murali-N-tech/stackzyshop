@@ -67,7 +67,7 @@ const ProductCarousel = () => {
             <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
               <div className="text-center text-white p-8">
                 <h2 className="text-4xl font-bold mb-4">{product.name}</h2>
-                <p className="text-xl mb-6">${product.price}</p>
+                <p className="text-xl mb-6">₹{product.price}</p>
                 <Link to={`/product/${product._id}`}>
                   <button className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg transition-transform transform hover:scale-105">
                     Shop Now

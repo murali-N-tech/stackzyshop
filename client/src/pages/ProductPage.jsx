@@ -143,7 +143,7 @@ const ProductPage = () => {
             <div className="bg-gray-50 rounded-lg p-6">
               <div className="flex justify-between items-center mb-4">
                 <span className="text-gray-700 font-medium text-lg">Price:</span>
-                <span className="text-3xl font-bold text-gray-900">${product.price}</span>
+                <span className="text-3xl font-bold text-gray-900">₹{product.price}</span>
               </div>
               <div className="flex justify-between items-center mb-6">
                 <span className="text-gray-700 font-medium text-lg">Status:</span>

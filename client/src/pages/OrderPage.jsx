@@ -82,11 +82,11 @@ const OrderPage = () => {
                           {item.name}
                         </Link>
                         <p className="text-sm text-gray-500">
-                           {item.qty} x ${item.price.toFixed(2)}
+                           {item.qty} x ₹{item.price.toFixed(2)}
                         </p>
                       </div>
                     </div>
-                    <p className="font-semibold text-lg">${(item.qty * item.price).toFixed(2)}</p>
+                    <p className="font-semibold text-lg">₹{(item.qty * item.price).toFixed(2)}</p>
                   </div>
                 ))}
             </div>
@@ -97,10 +97,10 @@ const OrderPage = () => {
             <div className="bg-white p-6 rounded-lg shadow-lg">
                <h2 className="text-2xl font-bold border-b pb-4 mb-4">Order Summary</h2>
                 <div className="space-y-2 text-gray-700">
-                  <div className="flex justify-between"><span>Subtotal:</span><span className="font-medium">${order.itemsPrice}</span></div>
-                  <div className="flex justify-between"><span>Shipping:</span><span className="font-medium">${order.shippingPrice}</span></div>
-                  <div className="flex justify-between"><span>Tax:</span><span className="font-medium">${order.taxPrice}</span></div>
-                  <div className="flex justify-between font-bold text-xl border-t pt-4 mt-4"><span>Total:</span><span>${order.totalPrice}</span></div>
+                  <div className="flex justify-between"><span>Subtotal:</span><span className="font-medium">₹{order.itemsPrice}</span></div>
+                  <div className="flex justify-between"><span>Shipping:</span><span className="font-medium">₹{order.shippingPrice}</span></div>
+                  <div className="flex justify-between"><span>Tax:</span><span className="font-medium">₹{order.taxPrice}</span></div>
+                  <div className="flex justify-between font-bold text-xl border-t pt-4 mt-4"><span>Total:</span><span>₹{order.totalPrice}</span></div>
                 </div>
             </div>
 

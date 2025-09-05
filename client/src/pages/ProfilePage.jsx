@@ -77,7 +77,7 @@ const ProfilePage = () => {
                         <tr key={order._id} className="hover:bg-gray-50">
                           <td className="px-5 py-4 text-sm font-mono text-gray-500">#{order._id.substring(0, 8)}...</td>
                           <td className="px-5 py-4 text-sm">{new Date(order.createdAt).toLocaleDateString()}</td>
-                          <td className="px-5 py-4 text-sm font-semibold">${order.totalPrice}</td>
+                          <td className="px-5 py-4 text-sm font-semibold">₹{order.totalPrice}</td>
                           <td className="px-5 py-4 text-sm">
                             <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
                               order.status === 'Delivered' ? 'bg-green-100 text-green-800' :

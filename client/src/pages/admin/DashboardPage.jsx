@@ -64,7 +64,7 @@ const DashboardPage = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
         <StatCard
           title="Total Sales"
-          value={`$${stats?.totalSales.toFixed(2)}`}
+          value={`₹${stats?.totalSales.toFixed(2)}`}
           linkTo="/admin/orderlist"
           icon={<FaDollarSign size={28} className="text-white" />}
           color="bg-green-500"

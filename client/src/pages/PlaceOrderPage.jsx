@@ -88,7 +88,7 @@ const PlaceOrderPage = () => {
                         <img src={item.image} alt={item.name} className="w-12 h-12 object-cover rounded mr-4" />
                         <Link to={`/product/${item._id}`}>{item.name}</Link>
                       </div>
-                      <div>{item.qty} x ${item.price} = ${(item.qty * item.price).toFixed(2)}</div>
+                      <div>{item.qty} x ₹{item.price} = ₹{(item.qty * item.price).toFixed(2)}</div>
                     </div>
                   ))}
                 </div>
@@ -100,10 +100,10 @@ const PlaceOrderPage = () => {
         <div className="border rounded-lg p-4 h-fit">
           <h2 className="text-2xl font-bold mb-4 text-center">Order Summary</h2>
           <div className="space-y-2">
-            <div className="flex justify-between"><span>Items:</span><span>${cart.itemsPrice}</span></div>
-            <div className="flex justify-between"><span>Shipping:</span><span>${cart.shippingPrice}</span></div>
-            <div className="flex justify-between"><span>Tax:</span><span>${cart.taxPrice}</span></div>
-            <div className="flex justify-between font-bold text-lg border-t pt-2"><span>Total:</span><span>${cart.totalPrice}</span></div>
+            <div className="flex justify-between"><span>Items:</span><span>₹{cart.itemsPrice}</span></div>
+            <div className="flex justify-between"><span>Shipping:</span><span>₹{cart.shippingPrice}</span></div>
+            <div className="flex justify-between"><span>Tax:</span><span>₹{cart.taxPrice}</span></div>
+            <div className="flex justify-between font-bold text-lg border-t pt-2"><span>Total:</span><span>₹{cart.totalPrice}</span></div>
           </div>
           {error && <div className="p-2 my-4 text-sm text-red-700 bg-red-100 rounded-lg">{error}</div>}
           <button

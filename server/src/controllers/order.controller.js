@@ -56,7 +56,7 @@ const addOrderItems = async (req, res) => {
           html: `
             <h1>Thank you for your order!</h1>
             <p>Your order with ID <strong>#${createdOrder._id}</strong> has been placed successfully.</p>
-            <p>Total Amount: <strong>$${createdOrder.totalPrice}</strong></p>
+            <p>Total Amount: <strong>₹${createdOrder.totalPrice}</strong></p>
             <p>We will notify you once your order has been shipped.</p>
           `,
         });

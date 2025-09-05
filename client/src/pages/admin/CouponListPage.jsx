@@ -96,7 +96,7 @@ const CouponListPage = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700">Discount Value</label>
-                <input type="number" placeholder={discountType === 'Percentage' ? 'e.g., 10 for 10%' : 'e.g., 50 for $50'} value={discountValue} onChange={(e) => setDiscountValue(e.target.value)} required className="mt-1 w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500" />
+                <input type="number" placeholder={discountType === 'Percentage' ? 'e.g., 10 for 10%' : 'e.g., 50 for ₹50'} value={discountValue} onChange={(e) => setDiscountValue(e.target.value)} required className="mt-1 w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700">Expiry Date</label>
@@ -129,7 +129,7 @@ const CouponListPage = () => {
                       <td className="px-6 py-4 whitespace-nowrap font-mono text-sm font-semibold">{coupon.code}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">{coupon.discountType}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
-                        {coupon.discountType === 'Percentage' ? `${coupon.discountValue}%` : `$${coupon.discountValue.toFixed(2)}`}
+                        {coupon.discountType === 'Percentage' ? `${coupon.discountValue}%` : `₹${coupon.discountValue.toFixed(2)}`}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">{new Date(coupon.expiryDate).toLocaleDateString()}</td>
                       <td className="px-6 py-4 whitespace-nowrap">

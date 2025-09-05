@@ -28,7 +28,7 @@ const Product = ({ product }) => {
           </h2>
         </Link>
         <div className="mt-2 flex items-center justify-between">
-          <p className="text-xl font-bold text-gray-900">${product.price}</p>
+          <p className="text-xl font-bold text-gray-900">₹{product.price}</p>
           <Rating value={product.rating} />
         </div>
       </div>

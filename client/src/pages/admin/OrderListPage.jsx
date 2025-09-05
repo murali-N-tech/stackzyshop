@@ -57,7 +57,7 @@ const OrderListPage = () => {
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-500">{order._id}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{order.user?.name || 'N/A'}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{new Date(order.createdAt).toLocaleDateString()}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 font-semibold">${order.totalPrice.toFixed(2)}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 font-semibold">₹{order.totalPrice.toFixed(2)}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm">
                     {order.isPaid ? (
                       <span className="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Paid</span>

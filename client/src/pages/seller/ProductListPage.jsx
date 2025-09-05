@@ -139,7 +139,7 @@ const SellerProductListPage = () => {
               <tr key={product._id} className="border-b hover:bg-gray-50">
                 <td className="px-5 py-5 text-sm">{product._id}</td>
                 <td className="px-5 py-5 text-sm">{product.name}</td>
-                <td className="px-5 py-5 text-sm">${product.price}</td>
+                <td className="px-5 py-5 text-sm">₹{product.price}</td>
                 <td className="px-5 py-5 text-sm">{product.category}</td>
                 <td className="px-5 py-5 text-sm">{product.brand}</td>
                 <td className="px-5 py-5 text-sm flex gap-2">

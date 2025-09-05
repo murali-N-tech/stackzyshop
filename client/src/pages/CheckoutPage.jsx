@@ -165,16 +165,16 @@ const CheckoutPage = () => {
                          {cart.cartItems.map(item => (
                              <div key={item._id} className="flex justify-between items-center text-sm">
                                  <span className="font-medium">{item.name} (x{item.qty})</span>
-                                 <span>${(item.price * item.qty).toFixed(2)}</span>
+                                 <span>₹{(item.price * item.qty).toFixed(2)}</span>
                              </div>
                          ))}
                      </div>
                      <div className="border-t pt-4 space-y-2">
-                         <div className="flex justify-between text-sm"><span>Subtotal:</span><span>${cart.itemsPrice}</span></div>
-                         {cart.discount > 0 && <div className="flex justify-between text-sm text-green-600"><span>Discount:</span><span>-${cart.discount.toFixed(2)}</span></div>}
-                         <div className="flex justify-between text-sm"><span>Shipping:</span><span>${cart.shippingPrice}</span></div>
-                         <div className="flex justify-between text-sm"><span>Tax:</span><span>${cart.taxPrice}</span></div>
-                         <div className="flex justify-between font-bold text-lg mt-2 pt-2 border-t"><span>Total:</span><span>${cart.totalPrice}</span></div>
+                         <div className="flex justify-between text-sm"><span>Subtotal:</span><span>₹{cart.itemsPrice}</span></div>
+                         {cart.discount > 0 && <div className="flex justify-between text-sm text-green-600"><span>Discount:</span><span>-₹{cart.discount.toFixed(2)}</span></div>}
+                         <div className="flex justify-between text-sm"><span>Shipping:</span><span>₹{cart.shippingPrice}</span></div>
+                         <div className="flex justify-between text-sm"><span>Tax:</span><span>₹{cart.taxPrice}</span></div>
+                         <div className="flex justify-between font-bold text-lg mt-2 pt-2 border-t"><span>Total:</span><span>₹{cart.totalPrice}</span></div>
                      </div>
                  </div>
             </div>
