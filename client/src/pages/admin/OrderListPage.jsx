@@ -31,50 +31,52 @@ const OrderListPage = () => {
   }, [userInfo.token]);
 
   return (
-    <div className="container mx-auto mt-8">
-      <h1 className="text-3xl font-bold mb-6">Orders</h1>
+    <div className="container mx-auto mt-8 px-4">
+      <h1 className="text-3xl font-bold mb-6">All Orders</h1>
       {loading ? (
         <div>Loading...</div>
       ) : error ? (
-        <div className="text-red-500">{error}</div>
+        <div className="text-red-500 bg-red-50 p-4 rounded-lg">{error}</div>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="min-w-full bg-white shadow rounded-lg">
-            <thead>
-              <tr className="border-b">
-                <th className="px-5 py-3 text-left text-xs font-semibold text-gray-600 uppercase">ID</th>
-                <th className="px-5 py-3 text-left text-xs font-semibold text-gray-600 uppercase">USER</th>
-                <th className="px-5 py-3 text-left text-xs font-semibold text-gray-600 uppercase">DATE</th>
-                <th className="px-5 py-3 text-left text-xs font-semibold text-gray-600 uppercase">TOTAL</th>
-                <th className="px-5 py-3 text-left text-xs font-semibold text-gray-600 uppercase">PAID</th>
-                <th className="px-5 py-3 text-left text-xs font-semibold text-gray-600 uppercase">DELIVERED</th>
-                <th className="px-5 py-3"></th>
+        <div className="overflow-x-auto bg-white rounded-lg shadow-lg">
+          <table className="min-w-full">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order ID</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Paid</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th className="px-6 py-3"></th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-gray-200">
               {orders.map((order) => (
-                <tr key={order._id} className="border-b hover:bg-gray-50">
-                  <td className="px-5 py-5 text-sm">{order._id}</td>
-                  <td className="px-5 py-5 text-sm">{order.user && order.user.name}</td>
-                  <td className="px-5 py-5 text-sm">{new Date(order.createdAt).toLocaleDateString()}</td>
-                  <td className="px-5 py-5 text-sm">${order.totalPrice}</td>
-                  <td className="px-5 py-5 text-sm">
+                <tr key={order._id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-500">{order._id}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{order.user?.name || 'N/A'}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{new Date(order.createdAt).toLocaleDateString()}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 font-semibold">${order.totalPrice.toFixed(2)}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm">
                     {order.isPaid ? (
-                      <span className="text-green-600">Paid</span>
+                      <span className="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Paid</span>
                     ) : (
-                      <span className="text-red-600">Not Paid</span>
+                      <span className="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Not Paid</span>
                     )}
                   </td>
-                  <td className="px-5 py-5 text-sm">
-                     {order.isDelivered ? (
-                       <span className="text-green-600">Delivered</span>
-                    ) : (
-                      <span className="text-red-600">Not Delivered</span>
-                    )}
+                  <td className="px-6 py-4 whitespace-nowrap text-sm">
+                     <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                        order.status === 'Delivered' ? 'bg-green-100 text-green-800' :
+                        order.status === 'Shipped' ? 'bg-blue-100 text-blue-800' :
+                        'bg-yellow-100 text-yellow-800'
+                      }`}>
+                       {order.status}
+                    </span>
                   </td>
-                  <td className="px-5 py-5 text-sm">
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <Link to={`/order/${order._id}`}>
-                      <button className="text-white bg-gray-700 hover:bg-gray-800 px-3 py-1 rounded">Details</button>
+                      <button className="text-blue-600 hover:text-blue-800 font-semibold">Details</button>
                     </Link>
                   </td>
                 </tr>

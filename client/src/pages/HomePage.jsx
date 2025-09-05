@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link, useLocation, useNavigate } from 'react-router-dom';
+import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import Product from '../components/Product';
 import Paginate from '../components/Paginate';
 import ProductCarousel from '../components/ProductCarousel';
 import Meta from '../components/Meta';
 import FilterSidebar from '../components/FilterSidebar';
+import { FaSpinner } from 'react-icons/fa';
 
 const HomePage = () => {
   const { keyword, pageNumber } = useParams();
@@ -41,30 +42,25 @@ const HomePage = () => {
   }, [keyword, pageNumber, location.search]);
 
   const handleFilterChange = (filterType, value) => {
-    const params = new URLSearchParams(); // Start with fresh params
+    const params = new URLSearchParams(location.search);
+    
     if (filterType === 'clear') {
-      // Clear all filters by navigating to the base path
       navigate(keyword ? `/search/${keyword}` : '/');
     } else {
-      // Set the new filter
-      params.set(filterType, value);
-      // Construct the new search path
+      if (params.get(filterType) === value) {
+        params.delete(filterType);
+      } else {
+        params.set(filterType, value);
+      }
       const path = keyword ? `/search/${keyword}` : '';
       navigate(`${path}?${params.toString()}`);
     }
   };
 
-  const HomePageProductCard = ({ product }) => (
-    <div className="border border-gray-200 rounded-lg overflow-hidden group">
-      <Link to={`/product/${product._id}`}>
-        <img src={product.image} alt={product.name} className="w-full h-48 object-cover group-hover:opacity-80 transition-opacity" />
-      </Link>
-      <div className="p-4">
-        <h3 className="text-md font-semibold truncate text-gray-800">
-          <Link to={`/product/${product._id}`} className="hover:text-blue-600">{product.name}</Link>
-        </h3>
-        <p className="text-lg font-bold text-gray-900 mt-2">${product.price}</p>
-      </div>
+  const Loader = () => (
+    <div className="flex justify-center items-center py-24">
+      <FaSpinner className="animate-spin text-blue-600 text-4xl" />
+      <span className="ml-4 text-lg text-gray-600">Loading Products...</span>
     </div>
   );
 
@@ -73,31 +69,44 @@ const HomePage = () => {
       <Meta />
       {!keyword && !location.search && <ProductCarousel />}
       
-      <div className="container mx-auto py-8 grid grid-cols-1 lg:grid-cols-4 gap-8">
+      <div className="container mx-auto py-8 grid grid-cols-1 lg:grid-cols-4 gap-8 px-4">
+        {/* Filter Sidebar */}
         <div className="lg:col-span-1">
           <FilterSidebar onFilterChange={handleFilterChange} />
         </div>
 
+        {/* Products Section */}
         <div className="lg:col-span-3">
-          <h1 className="text-3xl font-bold mb-8 text-gray-800">
-            {keyword ? `Search Results for "${keyword}"` : 'Latest Products'}
-          </h1>
+          <div className="flex justify-between items-center mb-8">
+            <h1 className="text-3xl font-bold text-gray-800">
+              {keyword ? `Search Results for "${keyword}"` : 'Latest Products'}
+            </h1>
+            {/* You can add a sort dropdown here if needed */}
+          </div>
+          
           {loading ? (
-            <div>Loading...</div>
+            <Loader />
           ) : error ? (
-            <div className="text-red-500">{error}</div>
+            <div className="bg-red-100 text-red-700 p-4 rounded-lg">{error}</div>
           ) : (
             <>
               {products.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
                   {products.map((product) => (
-                    <HomePageProductCard key={product._id} product={product} />
+                    <div key={product._id} className="animation-fade-in">
+                      <Product product={product} />
+                    </div>
                   ))}
                 </div>
               ) : (
-                <p>No products found.</p>
+                <div className="text-center py-20 bg-gray-50 rounded-lg">
+                  <h2 className="text-2xl font-semibold text-gray-700">No Products Found</h2>
+                  <p className="text-gray-500 mt-2">Try adjusting your search or filters.</p>
+                </div>
               )}
-              <Paginate pages={pages} page={page} keyword={keyword ? keyword : ''} />
+              <div className="mt-12">
+                <Paginate pages={pages} page={page} keyword={keyword ? keyword : ''} />
+              </div>
             </>
           )}
         </div>

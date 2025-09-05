@@ -71,7 +71,7 @@ const Header = () => {
                 </span>
               </button>
               {userMenuOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 ring-1 ring-black ring-opacity-5">
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 ring-1 ring-black ring-opacity-5 animation-fade-in">
                   <Link
                     to="/profile"
                     className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -125,7 +125,7 @@ const Header = () => {
                 Manage
               </button>
               {adminMenuOpen && (
-                <div className="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg py-1 ring-1 ring-black ring-opacity-5">
+                <div className="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg py-1 ring-1 ring-black ring-opacity-5 animation-fade-in">
                   {/* Seller-Specific Links */}
                   {userInfo.role === 'seller' && (
                     <>

@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { Link, useParams, useNavigate } from 'react-router-dom'; // --- IMPORT useNavigate ---
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import Paginate from '../../components/Paginate';
+import Button from '../../components/Button';
+import { FaEdit, FaTrash, FaPlus } from 'react-icons/fa';
 
 const ProductListPage = () => {
   const { pageNumber } = useParams();
-  const navigate = useNavigate(); // --- INITIALIZE useNavigate ---
+  const navigate = useNavigate();
   const { userInfo } = useSelector((state) => state.auth);
 
   const [products, setProducts] = useState([]);
@@ -47,20 +49,20 @@ const ProductListPage = () => {
         const data = await res.json();
         if (!res.ok) throw new Error(data.message || 'Could not delete product');
         setRefetch(!refetch);
-      } catch (err) {
+      } catch (err)
+      {
         alert(err.message);
       }
     }
   };
   
-  // --- CORRECTED createProductHandler ---
   const createProductHandler = async () => {
     if (window.confirm('A new product will be created and you will be redirected to the edit page. Continue?')) {
       try {
         const res = await fetch('/api/products', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json', // Added Content-Type header
+            'Content-Type': 'application/json',
             Authorization: `Bearer ${userInfo.token}`,
           },
         });
@@ -68,7 +70,6 @@ const ProductListPage = () => {
         if (!res.ok) {
           throw new Error(createdProduct.message || 'Could not create product');
         }
-        // Use navigate for a smooth, client-side redirect
         navigate(`/admin/product/${createdProduct._id}/edit`);
       } catch (err) {
         alert(err.message);
@@ -77,41 +78,42 @@ const ProductListPage = () => {
   };
 
   return (
-    <div className="container mx-auto mt-8">
+    <div className="container mx-auto mt-8 px-4">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Products</h1>
-        <button onClick={createProductHandler} className="bg-gray-800 text-white px-4 py-2 rounded-md hover:bg-gray-700">
+        <h1 className="text-3xl font-bold">All Products</h1>
+        <Button onClick={createProductHandler}>
+          <FaPlus className="inline mr-2" />
           Create Product
-        </button>
+        </Button>
       </div>
-      {loading ? ( <div>Loading...</div> ) : error ? ( <div className="text-red-500">{error}</div> ) : (
+      {loading ? ( <div>Loading...</div> ) : error ? ( <div className="text-red-500 bg-red-50 p-4 rounded-lg">{error}</div> ) : (
         <>
-          <div className="overflow-x-auto">
-            <table className="min-w-full bg-white shadow rounded-lg">
-              <thead>
-                <tr className="border-b">
-                  <th className="px-5 py-3 text-left text-xs font-semibold text-gray-600 uppercase">ID</th>
-                  <th className="px-5 py-3 text-left text-xs font-semibold text-gray-600 uppercase">NAME</th>
-                  <th className="px-5 py-3 text-left text-xs font-semibold text-gray-600 uppercase">PRICE</th>
-                  <th className="px-5 py-3 text-left text-xs font-semibold text-gray-600 uppercase">CATEGORY</th>
-                  <th className="px-5 py-3 text-left text-xs font-semibold text-gray-600 uppercase">BRAND</th>
-                  <th className="px-5 py-3"></th>
+          <div className="overflow-x-auto bg-white rounded-lg shadow-lg">
+            <table className="min-w-full">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product ID</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Brand</th>
+                  <th className="px-6 py-3"></th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-gray-200">
                 {products.map((product) => (
-                  <tr key={product._id} className="border-b hover:bg-gray-50">
-                    <td className="px-5 py-5 text-sm">{product._id}</td>
-                    <td className="px-5 py-5 text-sm">{product.name}</td>
-                    <td className="px-5 py-5 text-sm">${product.price}</td>
-                    <td className="px-5 py-5 text-sm">{product.category}</td>
-                    <td className="px-5 py-5 text-sm">{product.brand}</td>
-                    <td className="px-5 py-5 text-sm flex gap-2">
+                  <tr key={product._id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-500">{product._id}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{product.name}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 font-semibold">${product.price.toFixed(2)}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{product.category}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{product.brand}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium flex gap-4">
                       <Link to={`/admin/product/${product._id}/edit`}>
-                        <button className="text-gray-600 hover:text-gray-800">Edit</button>
+                        <button className="text-gray-400 hover:text-blue-600"><FaEdit /></button>
                       </Link>
-                      <button onClick={() => deleteHandler(product._id)} className="text-red-600 hover:text-red-800">
-                        Delete
+                      <button onClick={() => deleteHandler(product._id)} className="text-gray-400 hover:text-red-600">
+                        <FaTrash />
                       </button>
                     </td>
                   </tr>
@@ -119,7 +121,9 @@ const ProductListPage = () => {
               </tbody>
             </table>
           </div>
-          <Paginate pages={pages} page={page} isAdmin={true} />
+          <div className="mt-8">
+            <Paginate pages={pages} page={page} isAdmin={true} />
+          </div>
         </>
       )}
     </div>

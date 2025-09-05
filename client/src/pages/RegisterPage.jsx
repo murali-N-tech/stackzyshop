@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { setCredentials } from '../slices/authSlice';
+import { FaUser, FaEnvelope, FaLock, FaUserPlus } from 'react-icons/fa';
 
 const RegisterPage = () => {
   const [name, setName] = useState('');
@@ -16,7 +17,6 @@ const RegisterPage = () => {
 
   const { userInfo } = useSelector((state) => state.auth);
 
-  // Redirect if already logged in
   useEffect(() => {
     if (userInfo) {
       navigate('/');
@@ -41,7 +41,7 @@ const RegisterPage = () => {
       if (!res.ok) {
         throw new Error(data.message || 'Failed to register');
       }
-      dispatch(setCredentials(data)); // Dispatch to log the user in
+      dispatch(setCredentials(data));
       navigate('/');
     } catch (err) {
       setError(err.message);
@@ -51,38 +51,85 @@ const RegisterPage = () => {
   };
 
   return (
-    <div className="flex justify-center items-center mt-8">
-      <form onSubmit={submitHandler} className="w-full max-w-sm p-8 bg-white shadow-md rounded-lg">
-        <h1 className="text-2xl font-bold mb-6 text-center">Sign Up</h1>
-        {error && <div className="p-2 mb-4 text-sm text-red-700 bg-red-100 rounded-lg">{error}</div>}
-        
-        <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="name">Name</label>
-          <input id="name" type="text" placeholder="Enter name" value={name} onChange={(e) => setName(e.target.value)} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700" required />
+    <div className="flex justify-center items-center min-h-[70vh] bg-gray-50 px-4">
+      <div className="w-full max-w-4xl mx-auto animation-fade-in">
+        <div className="bg-white rounded-2xl shadow-2xl flex flex-col md:flex-row">
+          {/* Form Section */}
+          <div className="w-full md:w-1/2 p-8 md:p-12">
+            <h1 className="text-3xl font-bold mb-2 text-gray-800">Create an Account</h1>
+            <p className="text-gray-500 mb-8">Join ShopSphere today!</p>
+            
+            {error && <div className="p-3 mb-4 text-sm text-red-700 bg-red-100 rounded-lg">{error}</div>}
+            
+            <form onSubmit={submitHandler} className="space-y-6">
+              <div className="relative">
+                <FaUser className="absolute top-1/2 left-4 -translate-y-1/2 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Enter name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="w-full pl-12 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 transition"
+                  required
+                />
+              </div>
+              <div className="relative">
+                <FaEnvelope className="absolute top-1/2 left-4 -translate-y-1/2 text-gray-400" />
+                <input
+                  type="email"
+                  placeholder="Enter email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full pl-12 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 transition"
+                  required
+                />
+              </div>
+              <div className="relative">
+                <FaLock className="absolute top-1/2 left-4 -translate-y-1/2 text-gray-400" />
+                <input
+                  type="password"
+                  placeholder="Enter password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full pl-12 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 transition"
+                  required
+                />
+              </div>
+               <div className="relative">
+                <FaLock className="absolute top-1/2 left-4 -translate-y-1/2 text-gray-400" />
+                <input
+                  type="password"
+                  placeholder="Confirm password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="w-full pl-12 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 transition"
+                  required
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition-transform transform hover:scale-105 disabled:bg-blue-400 flex items-center justify-center"
+              >
+                <FaUserPlus className="mr-2"/>
+                {loading ? 'Registering...' : 'Register'}
+              </button>
+            </form>
+            <div className="py-4 text-center">
+              <span className="text-gray-600">Already have an account? </span>
+              <Link to="/login" className="text-blue-600 hover:underline font-semibold">
+                Login here
+              </Link>
+            </div>
+          </div>
+          
+          {/* Image Section */}
+          <div className="hidden md:block w-1/2 bg-blue-600 rounded-r-2xl p-12 text-white text-center flex flex-col justify-center">
+             <h2 className="text-3xl font-bold mb-4">Start Your Journey With Us</h2>
+             <p>Create an account to enjoy faster checkout and a personalized shopping experience.</p>
+          </div>
         </div>
-        <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">Email Address</label>
-          <input id="email" type="email" placeholder="Enter email" value={email} onChange={(e) => setEmail(e.target.value)} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700" required />
-        </div>
-        <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">Password</label>
-          <input id="password" type="password" placeholder="Enter password" value={password} onChange={(e) => setPassword(e.target.value)} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700" required />
-        </div>
-        <div className="mb-6">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="confirmPassword">Confirm Password</label>
-          <input id="confirmPassword" type="password" placeholder="Confirm password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700" required />
-        </div>
-
-        <button type="submit" disabled={loading} className="bg-gray-800 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded w-full disabled:bg-gray-400">
-          {loading ? 'Registering...' : 'Register'}
-        </button>
-        <div className="py-3 text-center">
-          Already have an account?{' '}
-          <Link to="/login" className="text-blue-600 hover:underline">
-            Login
-          </Link>
-        </div>
-      </form>
+      </div>
     </div>
   );
 };
