@@ -8,7 +8,7 @@ import {
   toggleWishlist,
   forgotPassword,
   resetPassword,
-  googleLogin, // Import the new controller
+  googleAuth, // Import the new controller
 } from '../controllers/user.controller.js';
 import { protect, admin } from '../middlewares/auth.middleware.js';
 
@@ -29,7 +29,7 @@ router.post('/forgot-password', forgotPassword);
 router.post('/reset-password', resetPassword);
 
 // --- GOOGLE OAUTH ROUTE ---
-router.post('/google-login', googleLogin); // Add the new route
+router.post('/google-auth', googleAuth); // Add the new route
 
 
 export default router;

@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { useNavigate, Link } from 'react-router-dom';
-import { saveShippingAddress, savePaymentMethod, clearCartItems, selectCart } from '../slices/cartSlice';
+import { useNavigate } from 'react-router-dom';
+import { saveShippingAddress, savePaymentMethod } from '../slices/cartSlice';
 import CheckoutSteps from '../components/CheckoutSteps';
 import Button from '../components/Button';
 import Meta from '../components/Meta';
+import { useOrder } from '../hooks/useOrder';
 
 const CheckoutPage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { loading, error, placeOrderHandler } = useOrder();
 
-  const cart = useSelector(selectCart);
+  const cart = useSelector((state) => state.cart);
   const { userInfo } = useSelector((state) => state.auth);
   
   const [currentStep, setCurrentStep] = useState(1); // 1: Shipping, 2: Payment, 3: Order
@@ -21,9 +23,6 @@ const CheckoutPage = () => {
   const [postalCode, setPostalCode] = useState(cart.shippingAddress?.postalCode || '');
   const [country, setCountry] = useState(cart.shippingAddress?.country || '');
   const [paymentMethod, setPaymentMethod] = useState(cart.paymentMethod || 'PayPal');
-  
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
 
   useEffect(() => {
     if (!userInfo) {
@@ -43,37 +42,6 @@ const CheckoutPage = () => {
     e.preventDefault();
     dispatch(savePaymentMethod(paymentMethod));
     setCurrentStep(3);
-  };
-
-  const placeOrderHandler = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await fetch('/api/orders', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${userInfo.token}`,
-        },
-        body: JSON.stringify({
-          orderItems: cart.cartItems,
-          shippingAddress: cart.shippingAddress,
-          paymentMethod: cart.paymentMethod,
-          itemsPrice: cart.itemsPrice,
-          shippingPrice: cart.shippingPrice,
-          taxPrice: cart.taxPrice,
-          totalPrice: cart.totalPrice,
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || 'Could not place order');
-      dispatch(clearCartItems());
-      navigate(`/order/${data._id}`);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
   };
 
   const renderStepContent = () => {

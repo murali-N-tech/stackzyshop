@@ -69,65 +69,49 @@ const loginUser = async (req, res) => {
   }
 };
 
-// --- GOOGLE LOGIN ---
-// @desc    Handle Google OAuth login
-// @route   POST /api/users/google-login
+// --- GOOGLE AUTH ---
+// @desc    Handle Google OAuth login/registration
+// @route   POST /api/users/google-auth
 // @access  Public
-const googleLogin = async (req, res) => {
-  try {
-    const { email, googleId } = req.body;
-    let user = await User.findOne({ email });
-
-    if (user && user.googleId === googleId) {
-        const token = generateToken(res, user._id);
-        res.status(200).json({
-            _id: user._id,
-            name: user.name,
-            email: user.email,
-            isAdmin: user.isAdmin,
-            role: user.role,
-            token: token,
-        });
-    } else {
-      res.status(401).json({ message: 'User not registered with this Google account. Please sign up.' });
-    }
-
-  } catch (error) {
-    res.status(500).json({ message: `Server Error: ${error.message}` });
-  }
-};
-
-// --- NEW GOOGLE REGISTER ---
-// @desc    Handle Google OAuth registration
-// @route   POST /api/users/google-register
-// @access  Public
-const googleRegister = async (req, res) => {
+const googleAuth = async (req, res) => {
   try {
     const { email, name, googleId } = req.body;
     let user = await User.findOne({ email });
 
     if (user) {
-      return res.status(400).json({ message: 'User already exists with this email.' });
-    }
-    
-    // If user does not exist, create a new one
-    user = await User.create({
-      name,
-      email,
-      googleId,
-      // No password for Google-based accounts
-    });
+      // If user exists, log them in
+      if (user.googleId === googleId) {
+        const token = generateToken(res, user._id);
+        res.status(200).json({
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          isAdmin: user.isAdmin,
+          role: user.role,
+          token: token,
+        });
+      } else {
+        res.status(401).json({ message: 'User already exists with this email. Please log in with your password.' });
+      }
+    } else {
+      // If user does not exist, create a new one
+      user = await User.create({
+        name,
+        email,
+        googleId,
+        // No password for Google-based accounts
+      });
 
-    const token = generateToken(res, user._id);
-    res.status(201).json({
+      const token = generateToken(res, user._id);
+      res.status(201).json({
         _id: user._id,
         name: user.name,
         email: user.email,
         isAdmin: user.isAdmin,
         role: user.role,
         token: token,
-    });
-
+      });
+    }
   } catch (error) {
     res.status(500).json({ message: `Server Error: ${error.message}` });
   }
@@ -310,6 +294,5 @@ export {
   toggleWishlist,
   forgotPassword,
   resetPassword,
-  googleLogin,
-  googleRegister,
+  googleAuth,
 };

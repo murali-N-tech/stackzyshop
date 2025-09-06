@@ -43,6 +43,7 @@ import ProductEditPage from './pages/admin/ProductEditPage';
 import UserListPage from './pages/admin/UserListPage';
 import SellerListPage from './pages/admin/SellerListPage';
 import CouponListPage from './pages/admin/CouponListPage'; // --- IMPORT NEW PAGE ---
+import AdminSalesPage from './pages/admin/AdminSalesPage'; // --- IMPORT NEW PAGE ---
 
 // Seller Pages
 import SellerProductListPage from './pages/seller/ProductListPage';
@@ -92,6 +93,7 @@ const router = createBrowserRouter(
         <Route path="/admin/userlist" element={<UserListPage />} />
         <Route path="/admin/sellerlist" element={<SellerListPage />} />
         <Route path="/admin/couponlist" element={<CouponListPage />} /> {/* --- ADDED NEW ROUTE --- */}
+        <Route path="/admin/sales" element={<AdminSalesPage />} /> {/* --- ADDED NEW ROUTE --- */}
       </Route>
     </Route>
   )

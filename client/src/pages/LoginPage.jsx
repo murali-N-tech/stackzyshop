@@ -51,7 +51,7 @@ const LoginPage = () => {
     const { name, email, sub } = decoded;
 
     try {
-        const res = await fetch('/api/users/google-login', {
+        const res = await fetch('/api/users/google-auth', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ name, email, googleId: sub }),

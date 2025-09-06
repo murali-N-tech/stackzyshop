@@ -35,6 +35,12 @@ router.get('/myorders', protect, getMyOrders);
 // @access  Private/Seller
 router.get('/mysales', protect, seller, getMySales);
 
+// --- ADMIN ROUTE: GET ADMIN'S SALES ---
+// @route   GET /api/orders/adminsales
+// @desc    Get all orders that include admin's products
+// @access  Private/Admin
+router.get('/adminsales', protect, admin, getMySales);
+
 // @route   GET /api/orders/:id
 // @desc    Get order by ID
 // @access  Private

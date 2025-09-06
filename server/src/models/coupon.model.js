@@ -33,5 +33,4 @@ const couponSchema = new mongoose.Schema(
 
 const Coupon = mongoose.model('Coupon', couponSchema);
 
-// --- THIS IS THE MISSING LINE THAT FIXES THE BUG ---
 export default Coupon;

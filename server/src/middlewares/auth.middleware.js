@@ -41,9 +41,8 @@ const admin = (req, res, next) => {
   }
 };
 
-// --- NEW Middleware to protect seller routes ---
+// --- Middleware to protect seller routes (allows admins as well) ---
 const seller = (req, res, next) => {
-  // Allow sellers OR admins
   if (req.user && (req.user.role === 'seller' || req.user.isAdmin)) {
     next();
   } else {

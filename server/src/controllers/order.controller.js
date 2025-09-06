@@ -174,14 +174,6 @@ const updateOrderStatus = async (req, res) => {
     const order = await Order.findById(req.params.id);
 
     if (order) {
-      // Security Check
-      const isSellerOfItem = order.orderItems.some(
-        (item) => item.seller.toString() === req.user._id.toString()
-      );
-      if (!isSellerOfItem && !req.user.isAdmin) {
-        return res.status(401).json({ message: 'Not authorized to update this order' });
-      }
-
       order.status = status;
       if (status === 'Delivered') {
         order.deliveredAt = Date.now();
