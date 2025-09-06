@@ -1,6 +1,6 @@
 import Order from '../models/order.model.js';
 import Product from '../models/product.model.js';
-import sendEmail from '../utils/sendEmail.js'; // --- IMPORT OUR NEW EMAIL SERVICE ---
+import sendEmail from '../utils/sendEmail.js';
 
 // @desc    Create new order
 // @route   POST /api/orders
@@ -25,7 +25,7 @@ const addOrderItems = async (req, res) => {
       const productsFromDB = await Product.find({ _id: { $in: productIds } });
 
       const productMap = productsFromDB.reduce((map, product) => {
-        map[product._id] = product.user; // Map productId to sellerId (user)
+        map[product._id.toString()] = product.user; // Map productId to sellerId (user)
         return map;
       }, {});
 
@@ -109,14 +109,14 @@ const getMyOrders = async (req, res) => {
 // @route   POST /api/orders/razorpay
 // @access  Private
 const createRazorpayOrder = async (req, res) => {
-  // 👉 implement Razorpay order creation here
+  //  implement Razorpay order creation here
 };
 
 // @desc    Verify Razorpay payment & update order status
 // @route   POST /api/orders/:id/pay
 // @access  Private
 const verifyPaymentAndUpdateOrder = async (req, res) => {
-  // 👉 implement Razorpay signature verification & order update here
+  //  implement Razorpay signature verification & order update here
 };
 
 // @desc    Get all orders (Admin)
