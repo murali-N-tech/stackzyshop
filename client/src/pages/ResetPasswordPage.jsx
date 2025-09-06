@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { setCredentials } from '../slices/authSlice';
 import { FaLock } from 'react-icons/fa';
 
 const ResetPasswordPage = () => {
+    const location = useLocation();
     const [email, setEmail] = useState('');
     const [otp, setOtp] = useState('');
     const [password, setPassword] = useState('');
@@ -14,6 +15,12 @@ const ResetPasswordPage = () => {
 
     const navigate = useNavigate();
     const dispatch = useDispatch();
+
+    useEffect(() => {
+        if (location.state?.email) {
+            setEmail(location.state.email);
+        }
+    }, [location.state]);
 
     const submitHandler = async (e) => {
         e.preventDefault();

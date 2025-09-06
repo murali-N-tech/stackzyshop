@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import Meta from '../components/Meta';
 import Button from '../components/Button';
-import Product from '../components/Product'; // Using our new reusable product card
+import Product from '../components/Product';
 import { FaHeartBroken } from 'react-icons/fa';
 
 const WishlistPage = () => {
@@ -29,8 +29,12 @@ const WishlistPage = () => {
             fetch(`/api/products/${id}`).then(res => res.json())
           );
           
-          const products = await Promise.all(productPromises);
-          setWishlistItems(products);
+          const results = await Promise.allSettled(productPromises);
+          const successfulProducts = results
+            .filter(result => result.status === 'fulfilled')
+            .map(result => result.value);
+          
+          setWishlistItems(successfulProducts);
         } else {
           setWishlistItems([]);
         }

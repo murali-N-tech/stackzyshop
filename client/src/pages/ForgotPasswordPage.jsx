@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom'; // Import useNavigate
+import { Link, useNavigate } from 'react-router-dom';
 import { FaEnvelope, FaPaperPlane } from 'react-icons/fa';
 
 const ForgotPasswordPage = () => {
@@ -7,7 +7,7 @@ const ForgotPasswordPage = () => {
     const [message, setMessage] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
-    const navigate = useNavigate(); // Initialize navigate
+    const navigate = useNavigate();
 
     const submitHandler = async (e) => {
         e.preventDefault();
@@ -26,8 +26,7 @@ const ForgotPasswordPage = () => {
                 throw new Error(data.message || 'Failed to send OTP');
             }
             setMessage(data.message);
-            // On success, redirect to the reset password page
-            navigate('/reset-password'); 
+            navigate('/reset-password', { state: { email } }); 
         } catch (err) {
             setError(err.message);
         } finally {
