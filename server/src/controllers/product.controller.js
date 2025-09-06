@@ -6,7 +6,7 @@ import Seller from '../models/seller.model.js'; // --- IMPORT SELLER MODEL ---
 // @access  Public
 const getProducts = async (req, res) => {
   try {
-    const pageSize = 8;
+    const pageSize = 9;
     const page = Number(req.query.pageNumber) || 1;
 
     const filter = {};

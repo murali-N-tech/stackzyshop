@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { setCredentials } from '../slices/authSlice';
 import { FaEnvelope, FaLock, FaSignInAlt } from 'react-icons/fa';
+import { GoogleLogin } from '@react-oauth/google';
+import { jwtDecode } from 'jwt-decode';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -44,6 +46,32 @@ const LoginPage = () => {
     }
   };
 
+  const googleSuccess = async (res) => {
+    const decoded = jwtDecode(res.credential);
+    const { name, email, sub } = decoded;
+
+    try {
+        const res = await fetch('/api/users/google-login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, email, googleId: sub }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+            throw new Error(data.message || 'Google login failed');
+        }
+        dispatch(setCredentials(data));
+        navigate('/');
+    } catch (error) {
+        setError(error.message);
+    }
+  };
+
+  const googleFailure = (error) => {
+    console.error(error);
+    setError('Google Sign In was unsuccessful. Try again later');
+  };
+
   return (
     <div className="flex justify-center items-center min-h-[70vh] bg-gray-50 px-4">
       <div className="w-full max-w-4xl mx-auto animation-fade-in">
@@ -78,6 +106,9 @@ const LoginPage = () => {
                   required
                 />
               </div>
+              <div className="text-right">
+                <Link to="/forgot-password" className="text-sm text-blue-600 hover:underline">Forgot Password?</Link>
+              </div>
               <button
                 type="submit"
                 disabled={loading}
@@ -87,6 +118,18 @@ const LoginPage = () => {
                 {loading ? 'Signing In...' : 'Sign In'}
               </button>
             </form>
+
+            <div className="my-4 flex items-center">
+                <div className="flex-grow border-t border-gray-300"></div>
+                <span className="flex-shrink mx-4 text-gray-400">or</span>
+                <div className="flex-grow border-t border-gray-300"></div>
+            </div>
+
+            <GoogleLogin
+                onSuccess={googleSuccess}
+                onError={googleFailure}
+            />
+
             <div className="py-4 text-center">
               <span className="text-gray-600">New Customer? </span>
               <Link to="/register" className="text-blue-600 hover:underline font-semibold">

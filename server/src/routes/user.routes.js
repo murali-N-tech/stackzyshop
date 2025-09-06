@@ -6,6 +6,9 @@ import {
   getUsers,
   deleteUser,
   toggleWishlist,
+  forgotPassword,
+  resetPassword,
+  googleLogin, // Import the new controller
 } from '../controllers/user.controller.js';
 import { protect, admin } from '../middlewares/auth.middleware.js';
 
@@ -20,6 +23,13 @@ router.post('/register', registerUser);
 router.post('/login', loginUser);
 router.get('/profile', protect, getUserProfile);
 router.put('/wishlist', protect, toggleWishlist);
+
+// --- PASSWORD RESET ROUTES ---
+router.post('/forgot-password', forgotPassword);
+router.post('/reset-password', resetPassword);
+
+// --- GOOGLE OAUTH ROUTE ---
+router.post('/google-login', googleLogin); // Add the new route
 
 
 export default router;

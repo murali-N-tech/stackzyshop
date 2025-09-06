@@ -8,6 +8,7 @@ import {
 } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { HelmetProvider } from 'react-helmet-async';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 import store from './store';
 
 // Core Components
@@ -24,6 +25,8 @@ import CartPage from './pages/CartPage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
 import RegisterPage from './pages/RegisterPage.jsx';
 import SellerPage from './pages/SellerPage.jsx'; // --- IMPORT NEW ---
+import ForgotPasswordPage from './pages/ForgotPasswordPage.jsx';
+import ResetPasswordPage from './pages/ResetPasswordPage.jsx';
 
 // Private User Pages
 import CheckoutPage from './pages/CheckoutPage.jsx';
@@ -59,6 +62,8 @@ const router = createBrowserRouter(
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/seller/:id" element={<SellerPage />} /> {/* --- ADD NEW ROUTE --- */}
       <Route path="/seller/:id/page/:pageNumber" element={<SellerPage />} /> {/* --- ADD PAGINATION ROUTE --- */}
+      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+      <Route path="/reset-password" element={<ResetPasswordPage />} />
 
       {/* ---------------- PRIVATE ROUTES ---------------- */}
       <Route path="" element={<PrivateRoute />}>
@@ -95,9 +100,11 @@ const router = createBrowserRouter(
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <Provider store={store}>
-      <HelmetProvider>
-        <RouterProvider router={router} />
-      </HelmetProvider>
+      <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+        <HelmetProvider>
+          <RouterProvider router={router} />
+        </HelmetProvider>
+      </GoogleOAuthProvider>
     </Provider>
   </React.StrictMode>
 );

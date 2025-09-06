@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { setCredentials } from '../slices/authSlice';
 import { FaUser, FaEnvelope, FaLock, FaUserPlus } from 'react-icons/fa';
+import { GoogleLogin } from '@react-oauth/google';
+import { jwtDecode } from 'jwt-decode';
 
 const RegisterPage = () => {
   const [name, setName] = useState('');
@@ -48,6 +50,32 @@ const RegisterPage = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const googleSuccess = async (res) => {
+    const decoded = jwtDecode(res.credential);
+    const { name, email, sub } = decoded;
+
+    try {
+        const res = await fetch('/api/users/google-login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, email, googleId: sub }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+            throw new Error(data.message || 'Google login failed');
+        }
+        dispatch(setCredentials(data));
+        navigate('/');
+    } catch (error) {
+        setError(error.message);
+    }
+  };
+
+  const googleFailure = (error) => {
+    console.error(error);
+    setError('Google Sign In was unsuccessful. Try again later');
   };
 
   return (
@@ -115,6 +143,18 @@ const RegisterPage = () => {
                 {loading ? 'Registering...' : 'Register'}
               </button>
             </form>
+
+            <div className="my-4 flex items-center">
+                <div className="flex-grow border-t border-gray-300"></div>
+                <span className="flex-shrink mx-4 text-gray-400">or</span>
+                <div className="flex-grow border-t border-gray-300"></div>
+            </div>
+
+            <GoogleLogin
+                onSuccess={googleSuccess}
+                onError={googleFailure}
+            />
+
             <div className="py-4 text-center">
               <span className="text-gray-600">Already have an account? </span>
               <Link to="/login" className="text-blue-600 hover:underline font-semibold">

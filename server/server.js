@@ -8,7 +8,7 @@ import userRoutes from './src/routes/user.routes.js';
 import productRoutes from './src/routes/product.routes.js';
 import orderRoutes from './src/routes/order.routes.js';
 import configRoutes from './src/routes/config.routes.js';
-import statsRoutes from './src/routes/stats.routes.js'; // ✅ New config route
+import statsRoutes from './src/routes/stats.routes.js';
 import sellerRoutes from './src/routes/seller.routes.js';
 import couponRoutes from './src/routes/coupon.routes.js';
 
@@ -30,11 +30,9 @@ app.use('/api/users', userRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/config', configRoutes);
-app.use('/api/stats', statsRoutes); // ✅ Use new config route
+app.use('/api/stats', statsRoutes);
 app.use('/api/sellers', sellerRoutes);
 app.use('/api/coupons', couponRoutes);
-
-
 
 // --- Start Server ---
 const PORT = process.env.PORT || 8000;
