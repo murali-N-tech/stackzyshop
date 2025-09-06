@@ -74,7 +74,7 @@ const createProduct = async (req, res) => {
       name: 'New Product',
       price: 0,
       user: req.user._id,
-      image: '/images/sample.jpg',
+      images: ['/images/sample.jpg'],
       brand: 'Sample Brand',
       category: 'Sample Category',
       countInStock: 0,
@@ -94,7 +94,7 @@ const createProduct = async (req, res) => {
 // @access  Private/SellerOrAdmin
 const updateProduct = async (req, res) => {
   try {
-    const { name, price, description, image, brand, category, countInStock } =
+    const { name, price, description, images, brand, category, countInStock } =
       req.body;
     const product = await Product.findById(req.params.id);
 
@@ -109,7 +109,7 @@ const updateProduct = async (req, res) => {
       product.name = name;
       product.price = price;
       product.description = description;
-      product.image = image;
+      product.images = images;
       product.brand = brand;
       product.category = category;
       product.countInStock = countInStock;

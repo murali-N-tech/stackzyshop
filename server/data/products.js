@@ -1,7 +1,7 @@
 const products = [
   {
     name: 'Airpods Wireless Bluetooth Headphones',
-    image: '/images/airpods.jpg',
+    images: ['/images/airpods.jpg'],
     description:
       'Bluetooth technology lets you connect it with compatible devices wirelessly High-quality AAC audio offers immersive listening experience Built-in microphone allows you to take calls while working',
     brand: 'Apple',
@@ -13,7 +13,7 @@ const products = [
   },
   {
     name: 'iPhone 13 Pro 256GB Memory',
-    image: '/images/phone.jpg',
+    images: ['/images/phone.jpg'],
     description:
       'Introducing the iPhone 13 Pro. A transformative triple-camera system that adds tons of capability without complexity. An unprecedented leap in battery life',
     brand: 'Apple',
@@ -25,7 +25,7 @@ const products = [
   },
   {
     name: 'Cannon EOS 80D DSLR Camera',
-    image: '/images/camera.jpg',
+    images: ['/images/camera.jpg'],
     description:
       'Characterized by versatile imaging specs, the Canon EOS 80D further clarifies itself using a pair of robust focusing systems and an intuitive design',
     brand: 'Cannon',
@@ -37,7 +37,7 @@ const products = [
   },
   {
     name: 'Sony Playstation 5',
-    image: '/images/playstation.jpg',
+    images: ['/images/playstation.jpg'],
     description:
       'The ultimate home entertainment center starts with PlayStation. Whether you are into gaming, HD movies, television, music',
     brand: 'Sony',

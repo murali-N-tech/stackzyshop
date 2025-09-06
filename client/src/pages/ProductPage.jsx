@@ -6,6 +6,8 @@ import Meta from '../components/Meta';
 import Rating from '../components/ui/Rating';
 import Button from '../components/Button';
 import { FaHeart, FaRegHeart, FaSpinner, FaArrowLeft } from 'react-icons/fa';
+import { Carousel } from 'react-responsive-carousel';
+import 'react-responsive-carousel/lib/styles/carousel.min.css';
 
 const ProductPage = () => {
   const { id: productId } = useParams();
@@ -119,7 +121,13 @@ const ProductPage = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
           {/* Image Column */}
           <div>
-            <img src={product.image} alt={product.name} className="w-full rounded-lg shadow-lg" />
+            <Carousel showArrows={true} showThumbs={true}>
+              {product.images.map((image, index) => (
+                <div key={index}>
+                  <img src={image} alt={`${product.name} - view ${index + 1}`} />
+                </div>
+              ))}
+            </Carousel>
           </div>
 
           {/* Details Column */}

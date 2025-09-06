@@ -63,7 +63,7 @@ const ProductCarousel = () => {
       >
         {products.map((product) => (
           <div key={product._id} className="relative h-[500px]">
-            <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+            <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover" />
             <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
               <div className="text-center text-white p-8">
                 <h2 className="text-4xl font-bold mb-4">{product.name}</h2>

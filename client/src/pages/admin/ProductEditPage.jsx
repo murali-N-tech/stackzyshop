@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import axios from 'axios';
 import Button from '../../components/Button';
-import { FaArrowLeft, FaUpload } from 'react-icons/fa';
+import { FaArrowLeft, FaUpload, FaTrash } from 'react-icons/fa';
 
 const ProductEditPage = () => {
   const { id: productId } = useParams();
@@ -12,7 +12,7 @@ const ProductEditPage = () => {
   // Form States
   const [name, setName] = useState('');
   const [price, setPrice] = useState(0);
-  const [image, setImage] = useState('');
+  const [images, setImages] = useState([]);
   const [brand, setBrand] = useState('');
   const [category, setCategory] = useState('');
   const [countInStock, setCountInStock] = useState(0);
@@ -31,7 +31,7 @@ const ProductEditPage = () => {
         const { data } = await axios.get(`/api/products/${productId}`);
         setName(data.name);
         setPrice(data.price);
-        setImage(data.image);
+        setImages(data.images);
         setBrand(data.brand);
         setCategory(data.category);
         setCountInStock(data.countInStock);
@@ -52,7 +52,7 @@ const ProductEditPage = () => {
   const submitHandler = async (e) => {
     e.preventDefault();
     try {
-      const productData = { name, price, image, brand, category, countInStock, description };
+      const productData = { name, price, images, brand, category, countInStock, description };
       
       await axios.put(
         `/api/products/${productId}`,
@@ -73,35 +73,45 @@ const ProductEditPage = () => {
   };
   
   const handleImageUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+    const files = e.target.files;
+    if (!files) return;
 
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('publicKey', import.meta.env.VITE_IMAGEKIT_PUBLIC_KEY);
-    formData.append('fileName', file.name);
-    
     setUploading(true);
-    try {
-      const response = await axios.post(
-        'https://upload.imagekit.io/api/v1/files/upload',
-        formData,
-        {
-          headers: {
-            Authorization: `Basic ${btoa(import.meta.env.VITE_IMAGEKIT_PRIVATE_KEY + ':')}`,
-            'Content-Type': 'multipart/form-data',
-          },
-        }
-      );
-      setImage(response.data.url);
-    } catch (error) {
-      console.error('Upload error:', error);
-      alert('Image upload failed');
-    } finally {
-        setUploading(false);
+    const uploadedImageUrls = [];
+
+    for (const file of files) {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('publicKey', import.meta.env.VITE_IMAGEKIT_PUBLIC_KEY);
+      formData.append('fileName', file.name);
+
+      try {
+        const response = await axios.post(
+          'https://upload.imagekit.io/api/v1/files/upload',
+          formData,
+          {
+            headers: {
+              Authorization: `Basic ${btoa(import.meta.env.VITE_IMAGEKIT_PRIVATE_KEY + ':')}`,
+              'Content-Type': 'multipart/form-data',
+            },
+          }
+        );
+        uploadedImageUrls.push(response.data.url);
+      } catch (error) {
+        console.error('Upload error:', error);
+        alert('Image upload failed');
+      }
     }
+
+    setImages([...images, ...uploadedImageUrls]);
+    setUploading(false);
   };
 
+  const removeImage = (index) => {
+    const newImages = [...images];
+    newImages.splice(index, 1);
+    setImages(newImages);
+  };
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div className="text-red-500 bg-red-50 p-4 rounded-lg">{error}</div>;
@@ -137,13 +147,20 @@ const ProductEditPage = () => {
             </div>
 
             <div>
-              <label className="block text-gray-700 font-medium mb-1">Image</label>
-              <div className="mt-2 flex items-center gap-4">
-                {image && <img src={image} alt="Preview" className="w-20 h-20 object-cover rounded-lg" />}
+              <label className="block text-gray-700 font-medium mb-1">Images</label>
+              <div className="mt-2 flex flex-wrap items-center gap-4">
+                {images.map((image, index) => (
+                  <div key={index} className="relative">
+                    <img src={image} alt={`Preview ${index}`} className="w-20 h-20 object-cover rounded-lg" />
+                    <button type="button" onClick={() => removeImage(index)} className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1">
+                      <FaTrash size={12} />
+                    </button>
+                  </div>
+                ))}
                 <label className="cursor-pointer bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm leading-4 font-medium text-gray-700 hover:bg-gray-50">
                     <FaUpload className="inline mr-2"/>
-                    <span>{uploading ? 'Uploading...' : 'Upload Image'}</span>
-                    <input type="file" className="hidden" onChange={handleImageUpload} accept="image/*" />
+                    <span>{uploading ? 'Uploading...' : 'Upload Images'}</span>
+                    <input type="file" className="hidden" onChange={handleImageUpload} accept="image/*" multiple />
                 </label>
               </div>
             </div>
