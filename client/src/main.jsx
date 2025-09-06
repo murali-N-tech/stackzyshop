@@ -47,7 +47,9 @@ import AdminSalesPage from './pages/admin/AdminSalesPage'; // --- IMPORT NEW PAG
 
 // Seller Pages
 import SellerProductListPage from './pages/seller/ProductListPage';
-import SellerOrderListPage from './pages/seller/OrderListPage'; // --- IMPORT NEW ---
+import SellerOrderListPage from './pages/seller/OrderListPage';
+import SellerDashboardPage from './pages/seller/SellerDashboardPage';
+import InventoryPage from './pages/seller/InventoryPage'; // --- IMPORT NEW ---
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -77,10 +79,13 @@ const router = createBrowserRouter(
 
       {/* ---------------- SELLER ROUTES ---------------- */}
       <Route path="" element={<SellerRoute />}>
+        <Route path="/seller/dashboard" element={<SellerDashboardPage />} />
+        <Route path="/seller/inventory" element={<InventoryPage />} /> {/* --- ADD NEW ROUTE --- */}
+        <Route path="/seller/inventory/page/:pageNumber" element={<InventoryPage />} /> {/* --- ADD PAGINATION ROUTE --- */}
         <Route path="/seller/productlist" element={<SellerProductListPage />} />
         <Route path="/seller/productlist/:pageNumber" element={<SellerProductListPage />} />
         <Route path="/seller/product/:id/edit" element={<ProductEditPage />} />
-        <Route path="/seller/orderlist" element={<SellerOrderListPage />} /> {/* --- ADD NEW ROUTE --- */}
+        <Route path="/seller/orderlist" element={<SellerOrderListPage />} />
       </Route>
 
       {/* ---------------- ADMIN ROUTES ---------------- */}
@@ -92,8 +97,8 @@ const router = createBrowserRouter(
         <Route path="/admin/product/:id/edit" element={<ProductEditPage />} />
         <Route path="/admin/userlist" element={<UserListPage />} />
         <Route path="/admin/sellerlist" element={<SellerListPage />} />
-        <Route path="/admin/couponlist" element={<CouponListPage />} /> {/* --- ADDED NEW ROUTE --- */}
-        <Route path="/admin/sales" element={<AdminSalesPage />} /> {/* --- ADDED NEW ROUTE --- */}
+        <Route path="/admin/couponlist" element={<CouponListPage />} />
+        <Route path="/admin/sales" element={<AdminSalesPage />} />
       </Route>
     </Route>
   )

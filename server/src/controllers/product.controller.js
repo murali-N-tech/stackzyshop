@@ -1,5 +1,5 @@
 import Product from '../models/product.model.js';
-import Seller from '../models/seller.model.js'; // --- IMPORT SELLER MODEL ---
+import Seller from '../models/seller.model.js';
 
 // @desc    Fetch all products with pagination, search, and filters
 // @route   GET /api/products
@@ -19,9 +19,38 @@ const getProducts = async (req, res) => {
     if (req.query.brand) {
       filter.brand = req.query.brand;
     }
+    if (req.query.minPrice || req.query.maxPrice) {
+      filter.price = {};
+      if (req.query.minPrice) {
+        filter.price.$gte = Number(req.query.minPrice);
+      }
+      if (req.query.maxPrice) {
+        filter.price.$lte = Number(req.query.maxPrice);
+      }
+    }
+
+    let sortOrder = {};
+    if (req.query.sort) {
+      switch (req.query.sort) {
+        case 'price-asc':
+          sortOrder = { price: 1 };
+          break;
+        case 'price-desc':
+          sortOrder = { price: -1 };
+          break;
+        case 'rating-desc':
+          sortOrder = { rating: -1 };
+          break;
+        default:
+          sortOrder = { createdAt: -1 };
+      }
+    } else {
+      sortOrder = { createdAt: -1 };
+    }
 
     const count = await Product.countDocuments(filter);
     const products = await Product.find(filter)
+      .sort(sortOrder)
       .limit(pageSize)
       .skip(pageSize * (page - 1));
 
@@ -36,17 +65,14 @@ const getProducts = async (req, res) => {
 // @access  Public
 const getProductById = async (req, res) => {
   try {
-    // Populate user basic info
     const product = await Product.findById(req.params.id).populate(
       'user',
       'name email'
     );
 
     if (product) {
-      // Fetch seller profile
       const sellerProfile = await Seller.findOne({ user: product.user._id });
 
-      // Merge seller details
       const productWithSeller = {
         ...product.toObject(),
         seller: {
@@ -189,6 +215,63 @@ const createProductReview = async (req, res) => {
   }
 };
 
+// @desc    Create a new question
+// @route   POST /api/products/:id/questions
+// @access  Private
+const createProductQuestion = async (req, res) => {
+  try {
+    const { question } = req.body;
+    const product = await Product.findById(req.params.id);
+
+    if (product) {
+      const newQuestion = {
+        name: req.user.name,
+        question,
+        user: req.user._id,
+      };
+
+      product.qna.push(newQuestion);
+      await product.save();
+      res.status(201).json({ message: 'Question submitted' });
+    } else {
+      res.status(404).json({ message: 'Product not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: `Server Error: ${error.message}` });
+  }
+};
+
+// @desc    Create a new answer
+// @route   POST /api/products/:id/questions/:qid/answers
+// @access  Private
+const createProductAnswer = async (req, res) => {
+  try {
+    const { answer } = req.body;
+    const product = await Product.findById(req.params.id);
+
+    if (product) {
+      const question = product.qna.id(req.params.qid);
+
+      if (question) {
+        const newAnswer = {
+          name: req.user.name,
+          answer,
+          user: req.user._id,
+        };
+        question.answers.push(newAnswer);
+        await product.save();
+        res.status(201).json({ message: 'Answer submitted' });
+      } else {
+        res.status(404).json({ message: 'Question not found' });
+      }
+    } else {
+      res.status(404).json({ message: 'Product not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: `Server Error: ${error.message}` });
+  }
+};
+
 // @desc    Get top rated products
 // @route   GET /api/products/top
 // @access  Public
@@ -245,6 +328,32 @@ const getBrands = async (req, res) => {
   }
 };
 
+// @desc    Get related products and frequently bought together suggestions
+// @route   GET /api/products/:id/related
+// @access  Public
+const getRelatedProducts = async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    if (!product) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+
+    const related = await Product.find({
+      category: product.category,
+      _id: { $ne: product._id },
+    }).limit(5);
+
+    const frequentlyBought = await Product.find({
+      category: product.category,
+      _id: { $ne: product._id },
+    }).limit(2);
+
+    res.json({ related, frequentlyBought });
+  } catch (error) {
+    res.status(500).json({ message: `Server Error: ${error.message}` });
+  }
+};
+
 export {
   getProducts,
   getProductById,
@@ -256,4 +365,7 @@ export {
   getMyProducts,
   getCategories,
   getBrands,
+  createProductQuestion,
+  createProductAnswer,
+  getRelatedProducts,
 };

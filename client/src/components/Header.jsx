@@ -13,6 +13,7 @@ import {
   FaStore,
   FaHeart,
   FaTicketAlt,
+  FaBoxOpen, // --- NEW ICON ---
 } from 'react-icons/fa';
 
 const Header = () => {
@@ -130,13 +131,27 @@ const Header = () => {
                   {userInfo.role === 'seller' && (
                     <>
                       <Link
+                        to="/seller/dashboard"
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        onClick={() => setAdminMenuOpen(false)}
+                      >
+                        <FaTachometerAlt className="mr-3" /> Dashboard
+                      </Link>
+                      {/* --- NEW LINK: Inventory --- */}
+                      <Link
+                        to="/seller/inventory"
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        onClick={() => setAdminMenuOpen(false)}
+                      >
+                        <FaBoxOpen className="mr-3" /> Inventory
+                      </Link>
+                      <Link
                         to="/seller/productlist"
                         className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                         onClick={() => setAdminMenuOpen(false)}
                       >
                         <FaBox className="mr-3" /> My Products
                       </Link>
-                      {/* --- ADD NEW LINK --- */}
                       <Link
                         to="/seller/orderlist"
                         className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"

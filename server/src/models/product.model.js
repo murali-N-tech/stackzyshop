@@ -17,6 +17,39 @@ const reviewSchema = new mongoose.Schema(
   }
 );
 
+// A sub-schema for answers
+const answerSchema = new mongoose.Schema(
+  {
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      ref: 'User',
+    },
+    name: { type: String, required: true },
+    answer: { type: String, required: true },
+  },
+  {
+    timestamps: true,
+  }
+);
+
+// A sub-schema for questions
+const qnaSchema = new mongoose.Schema(
+  {
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      ref: 'User',
+    },
+    name: { type: String, required: true },
+    question: { type: String, required: true },
+    answers: [answerSchema], // Each question can have multiple answers
+  },
+  {
+    timestamps: true,
+  }
+);
+
 const productSchema = new mongoose.Schema(
   {
     user: {
@@ -45,6 +78,7 @@ const productSchema = new mongoose.Schema(
       required: true,
     },
     reviews: [reviewSchema], // An array of review documents
+    qna: [qnaSchema], // Array of questions with answers
     rating: {
       type: Number,
       required: true,

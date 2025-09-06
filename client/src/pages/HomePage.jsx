@@ -22,11 +22,14 @@ const HomePage = () => {
     const params = new URLSearchParams(location.search);
     const category = params.get('category') || '';
     const brand = params.get('brand') || '';
+    const minPrice = params.get('minPrice') || '';
+    const maxPrice = params.get('maxPrice') || '';
+    const sort = params.get('sort') || '';
     
     const fetchProducts = async () => {
       setLoading(true);
       try {
-        const res = await fetch(`/api/products?keyword=${keyword || ''}&pageNumber=${pageNumber || 1}&category=${category}&brand=${brand}`);
+        const res = await fetch(`/api/products?keyword=${keyword || ''}&pageNumber=${pageNumber || 1}&category=${category}&brand=${brand}&minPrice=${minPrice}&maxPrice=${maxPrice}&sort=${sort}`);
         if (!res.ok) throw new Error('Network response was not ok');
         const data = await res.json();
         setProducts(data.products);
@@ -46,16 +49,26 @@ const HomePage = () => {
     
     if (filterType === 'clear') {
       navigate(keyword ? `/search/${keyword}` : '/');
+    } else if (filterType === 'price') {
+      params.set('minPrice', value.min);
+      params.set('maxPrice', value.max);
     } else {
       if (params.get(filterType) === value) {
         params.delete(filterType);
       } else {
         params.set(filterType, value);
       }
+    }
       const path = keyword ? `/search/${keyword}` : '';
       navigate(`${path}?${params.toString()}`);
-    }
   };
+
+  const handleSortChange = (sortValue) => {
+    const params = new URLSearchParams(location.search);
+    params.set('sort', sortValue);
+    const path = keyword ? `/search/${keyword}` : '';
+    navigate(`${path}?${params.toString()}`);
+  }
 
   const Loader = () => (
     <div className="flex justify-center items-center py-24">
@@ -81,7 +94,12 @@ const HomePage = () => {
             <h1 className="text-3xl font-bold text-gray-800">
               {keyword ? `Search Results for "${keyword}"` : 'Latest Products'}
             </h1>
-            {/* You can add a sort dropdown here if needed */}
+            <select onChange={(e) => handleSortChange(e.target.value)} className="p-2 border rounded-md">
+              <option value="">Sort By</option>
+              <option value="price-asc">Price: Low to High</option>
+              <option value="price-desc">Price: High to Low</option>
+              <option value="rating-desc">Avg. Customer Review</option>
+            </select>
           </div>
           
           {loading ? (

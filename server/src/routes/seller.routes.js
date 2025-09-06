@@ -3,6 +3,7 @@ import {
   applyToBeSeller,
   getSellerApplications,
   verifySeller,
+  getSellerStats, // Add this
 } from '../controllers/seller.controller.js';
 
 // --- IMPORT NEW PUBLIC CONTROLLERS ---
@@ -11,7 +12,7 @@ import {
   getProductsBySeller,
 } from '../controllers/publicSeller.controller.js';
 
-import { protect, admin } from '../middlewares/auth.middleware.js';
+import { protect, admin, seller } from '../middlewares/auth.middleware.js'; // Add seller here
 
 const router = express.Router();
 
@@ -24,6 +25,9 @@ router.get('/', protect, admin, getSellerApplications);
 
 // Verify a seller application (admin only)
 router.put('/:id/verify', protect, admin, verifySeller);
+
+// Get stats for the logged-in seller
+router.get('/stats', protect, seller, getSellerStats); // <-- ADD THIS ROUTE
 
 // ---------------- PUBLIC ROUTES ----------------
 // Get seller profile by ID

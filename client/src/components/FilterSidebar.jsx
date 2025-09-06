@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 const FilterSidebar = ({ onFilterChange }) => {
   const [categories, setCategories] = useState([]);
   const [brands, setBrands] = useState([]);
+  const [minPrice, setMinPrice] = useState('');
+  const [maxPrice, setMaxPrice] = useState('');
 
   useEffect(() => {
     const fetchFilters = async () => {
@@ -25,6 +27,10 @@ const FilterSidebar = ({ onFilterChange }) => {
 
   const handleFilterClick = (filterType, value) => {
     onFilterChange(filterType, value);
+  };
+
+  const handlePriceChange = () => {
+    onFilterChange('price', { min: minPrice, max: maxPrice });
   };
 
   return (
@@ -52,6 +58,29 @@ const FilterSidebar = ({ onFilterChange }) => {
             </li>
           ))}
         </ul>
+      </div>
+      <div className="mt-8">
+        <h3 className="font-bold text-lg mb-4 border-b pb-2">Price</h3>
+        <div className="flex items-center space-x-2">
+          <input
+            type="number"
+            placeholder="Min"
+            value={minPrice}
+            onChange={(e) => setMinPrice(e.target.value)}
+            className="w-full p-2 border rounded-md"
+          />
+          <span>-</span>
+          <input
+            type="number"
+            placeholder="Max"
+            value={maxPrice}
+            onChange={(e) => setMaxPrice(e.target.value)}
+            className="w-full p-2 border rounded-md"
+          />
+        </div>
+        <button onClick={handlePriceChange} className="mt-4 w-full bg-blue-600 text-white py-2 rounded-md">
+          Apply Price
+        </button>
       </div>
       <button onClick={() => onFilterChange('clear', '')} className="mt-8 w-full text-sm text-gray-500 hover:text-red-600">
         Clear All Filters

@@ -8,6 +8,8 @@ import Button from '../components/Button';
 import { FaHeart, FaRegHeart, FaSpinner, FaArrowLeft } from 'react-icons/fa';
 import { Carousel } from 'react-responsive-carousel';
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
+import QnaSection from '../components/QnaSection';
+import RelatedProducts from '../components/RelatedProducts';
 
 const ProductPage = () => {
   const { id: productId } = useParams();
@@ -25,8 +27,11 @@ const ProductPage = () => {
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
   const [reviewError, setReviewError] = useState(null);
-  
+
   const [isInWishlist, setIsInWishlist] = useState(false);
+
+  // ✅ New State for QnA
+  const [qnaError, setQnaError] = useState(null);
 
   useEffect(() => {
     const fetchProductAndWishlist = async () => {
@@ -101,6 +106,27 @@ const ProductPage = () => {
     }
   };
 
+  // ✅ Handle Question Submission
+  const handleQuestionSubmit = async (question) => {
+    setQnaError(null);
+    try {
+      const res = await fetch(`/api/products/${productId}/questions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${userInfo.token}`,
+        },
+        body: JSON.stringify({ question }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Failed to submit question');
+      alert('Question submitted successfully!');
+      setRefetch(!refetch); // Refetch product data to show the new question
+    } catch (err) {
+      setQnaError(err.message);
+    }
+  };
+
   const Loader = () => (
     <div className="flex justify-center items-center h-screen">
       <FaSpinner className="animate-spin text-blue-600 text-5xl" />
@@ -114,10 +140,13 @@ const ProductPage = () => {
     <>
       <Meta title={product.name} description={product.description} />
       <div className="container mx-auto px-4 py-8 animation-fade-in">
-        <Link to="/" className="inline-flex items-center gap-2 mb-8 text-gray-600 hover:text-gray-900 font-semibold">
+        <Link
+          to="/"
+          className="inline-flex items-center gap-2 mb-8 text-gray-600 hover:text-gray-900 font-semibold"
+        >
           <FaArrowLeft /> Back to Products
         </Link>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
           {/* Image Column */}
           <div>
@@ -134,10 +163,13 @@ const ProductPage = () => {
           <div>
             <span className="text-sm font-semibold text-blue-600">{product.category}</span>
             <h1 className="text-4xl font-bold text-gray-800 my-2">{product.name}</h1>
-            
+
             <div className="mb-4">
               <span className="text-sm text-gray-500">Sold by: </span>
-              <Link to={`/seller/${product.user._id}`} className="text-sm font-semibold text-blue-600 hover:underline">
+              <Link
+                to={`/seller/${product.user._id}`}
+                className="text-sm font-semibold text-blue-600 hover:underline"
+              >
                 {product.seller?.shopName || 'ShopSphere Store'}
               </Link>
             </div>
@@ -146,7 +178,7 @@ const ProductPage = () => {
               <Rating value={product.rating} text={`${product.numReviews} reviews`} />
             </div>
             <p className="text-gray-600 leading-relaxed mb-6">{product.description}</p>
-            
+
             {/* Action Box */}
             <div className="bg-gray-50 rounded-lg p-6">
               <div className="flex justify-between items-center mb-4">
@@ -155,7 +187,13 @@ const ProductPage = () => {
               </div>
               <div className="flex justify-between items-center mb-6">
                 <span className="text-gray-700 font-medium text-lg">Status:</span>
-                <span className={`font-semibold px-3 py-1 rounded-full text-sm ${product.countInStock > 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                <span
+                  className={`font-semibold px-3 py-1 rounded-full text-sm ${
+                    product.countInStock > 0
+                      ? 'bg-green-100 text-green-800'
+                      : 'bg-red-100 text-red-800'
+                  }`}
+                >
                   {product.countInStock > 0 ? 'In Stock' : 'Out of Stock'}
                 </span>
               </div>
@@ -169,14 +207,16 @@ const ProductPage = () => {
                     className="p-2 border rounded-md"
                   >
                     {[...Array(product.countInStock).keys()].map((x) => (
-                      <option key={x + 1} value={x + 1}>{x + 1}</option>
+                      <option key={x + 1} value={x + 1}>
+                        {x + 1}
+                      </option>
                     ))}
                   </select>
                 </div>
               )}
-              
+
               <div className="flex flex-col sm:flex-row gap-4">
-                <Button 
+                <Button
                   onClick={addToCartHandler}
                   className="flex-1"
                   disabled={product.countInStock === 0}
@@ -188,7 +228,11 @@ const ProductPage = () => {
                   variant="secondary"
                   className="flex-1 flex items-center justify-center"
                 >
-                  {isInWishlist ? <FaHeart className="mr-2 text-red-500" /> : <FaRegHeart className="mr-2" />}
+                  {isInWishlist ? (
+                    <FaHeart className="mr-2 text-red-500" />
+                  ) : (
+                    <FaRegHeart className="mr-2" />
+                  )}
                   {isInWishlist ? 'In Wishlist' : 'Add to Wishlist'}
                 </Button>
               </div>
@@ -198,50 +242,92 @@ const ProductPage = () => {
 
         {/* Reviews Section */}
         <div className="mt-16">
-            <h2 className="text-3xl font-bold mb-8 border-b pb-4">Customer Reviews</h2>
-            <div className="grid md:grid-cols-2 gap-12">
-              <div className="space-y-6">
-                {product.reviews.length === 0 && <div className="bg-blue-50 text-blue-800 p-4 rounded-lg">No Reviews Yet. Be the first!</div>}
-                {product.reviews.map((review) => (
-                  <div key={review._id} className="border-b pb-6">
-                    <div className="flex items-center mb-2">
-                      <strong className="mr-4 text-gray-800">{review.name}</strong>
-                      <Rating value={review.rating} />
-                    </div>
-                    <p className="text-gray-500 text-sm mb-3">{new Date(review.createdAt).toLocaleDateString()}</p>
-                    <p className="text-gray-700">{review.comment}</p>
+          <h2 className="text-3xl font-bold mb-8 border-b pb-4">Customer Reviews</h2>
+          <div className="grid md:grid-cols-2 gap-12">
+            <div className="space-y-6">
+              {product.reviews.length === 0 && (
+                <div className="bg-blue-50 text-blue-800 p-4 rounded-lg">
+                  No Reviews Yet. Be the first!
+                </div>
+              )}
+              {product.reviews.map((review) => (
+                <div key={review._id} className="border-b pb-6">
+                  <div className="flex items-center mb-2">
+                    <strong className="mr-4 text-gray-800">{review.name}</strong>
+                    <Rating value={review.rating} />
                   </div>
-                ))}
-              </div>
-              <div>
-                <h3 className="text-2xl font-bold mb-4">Write a Review</h3>
-                {userInfo ? (
-                  <form onSubmit={submitReviewHandler} className="bg-gray-50 p-6 rounded-lg">
-                    {reviewError && <div className="p-3 mb-4 text-sm text-red-700 bg-red-100 rounded-lg">{reviewError}</div>}
-                    <div className="mb-4">
-                      <label className="block text-gray-700 font-medium mb-2">Your Rating</label>
-                      <select value={rating} onChange={(e) => setRating(Number(e.target.value))} required className="p-2 border rounded-md w-full">
-                        <option value={0}>Select...</option>
-                        <option value={1}>1 - Poor</option>
-                        <option value={2}>2 - Fair</option>
-                        <option value={3}>3 - Good</option>
-                        <option value={4}>4 - Very Good</option>
-                        <option value={5}>5 - Excellent</option>
-                      </select>
-                    </div>
-                    <div className="mb-4">
-                      <label className="block text-gray-700 font-medium mb-2">Your Comment</label>
-                      <textarea rows="4" value={comment} onChange={(e) => setComment(e.target.value)} required className="p-2 border rounded-md w-full"></textarea>
-                    </div>
-                    <Button type="submit">Submit Review</Button>
-                  </form>
-                ) : (
-                  <div className="bg-blue-50 p-4 rounded-lg text-blue-800">
-                    Please <Link to="/login" className="font-bold hover:underline">sign in</Link> to write a review.
-                  </div>
-                )}
-              </div>
+                  <p className="text-gray-500 text-sm mb-3">
+                    {new Date(review.createdAt).toLocaleDateString()}
+                  </p>
+                  <p className="text-gray-700">{review.comment}</p>
+                </div>
+              ))}
             </div>
+            <div>
+              <h3 className="text-2xl font-bold mb-4">Write a Review</h3>
+              {userInfo ? (
+                <form onSubmit={submitReviewHandler} className="bg-gray-50 p-6 rounded-lg">
+                  {reviewError && (
+                    <div className="p-3 mb-4 text-sm text-red-700 bg-red-100 rounded-lg">
+                      {reviewError}
+                    </div>
+                  )}
+                  <div className="mb-4">
+                    <label className="block text-gray-700 font-medium mb-2">Your Rating</label>
+                    <select
+                      value={rating}
+                      onChange={(e) => setRating(Number(e.target.value))}
+                      required
+                      className="p-2 border rounded-md w-full"
+                    >
+                      <option value={0}>Select...</option>
+                      <option value={1}>1 - Poor</option>
+                      <option value={2}>2 - Fair</option>
+                      <option value={3}>3 - Good</option>
+                      <option value={4}>4 - Very Good</option>
+                      <option value={5}>5 - Excellent</option>
+                    </select>
+                  </div>
+                  <div className="mb-4">
+                    <label className="block text-gray-700 font-medium mb-2">Your Comment</label>
+                    <textarea
+                      rows="4"
+                      value={comment}
+                      onChange={(e) => setComment(e.target.value)}
+                      required
+                      className="p-2 border rounded-md w-full"
+                    ></textarea>
+                  </div>
+                  <Button type="submit">Submit Review</Button>
+                </form>
+              ) : (
+                <div className="bg-blue-50 p-4 rounded-lg text-blue-800">
+                  Please{' '}
+                  <Link to="/login" className="font-bold hover:underline">
+                    sign in
+                  </Link>{' '}
+                  to write a review.
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* ✅ QnA Section */}
+        <div className="mt-16">
+          <h2 className="text-3xl font-bold mb-8 border-b pb-4">Customer Questions & Answers</h2>
+          <QnaSection
+            product={product}
+            productId={productId}
+            onQuestionSubmit={handleQuestionSubmit}
+          />
+          {qnaError && <div className="text-red-500 mt-4">{qnaError}</div>}
+        </div>
+
+        {/* ✅ Related Products */}
+        <div className="mt-16">
+          <h2 className="text-3xl font-bold mb-8 border-b pb-4">Related Products</h2>
+          <RelatedProducts product={product} />
         </div>
       </div>
     </>
