@@ -13,7 +13,7 @@ import {
   FaStore,
   FaHeart,
   FaTicketAlt,
-  FaBoxOpen, // --- NEW ICON ---
+  FaBoxOpen,
 } from 'react-icons/fa';
 
 const Header = () => {
@@ -28,42 +28,37 @@ const Header = () => {
     dispatch(logout());
     navigate('/login');
     setUserMenuOpen(false);
-    setAdminMenuOpen(false); // Close both menus on logout
+    setAdminMenuOpen(false);
   };
 
   return (
     <header className="bg-white shadow-md sticky top-0 z-50">
       <nav className="container mx-auto px-4 py-3 flex justify-between items-center">
-        {/* Logo */}
         <Link
           to="/"
-          className="text-2xl font-bold text-gray-800 hover:text-blue-600 transition-colors"
+          className="text-2xl font-bold text-dark hover:text-primary transition-colors"
         >
           ShopSphere
         </Link>
 
-        {/* Search Box */}
         <div className="hidden md:block w-full max-w-md mx-4">
           <SearchBox />
         </div>
 
-        {/* Navigation Icons & Menus */}
         <div className="flex items-center space-x-6">
           <Link
             to="/cart"
-            className="text-gray-600 hover:text-blue-600 relative"
+            className="text-gray-600 hover:text-primary relative"
             title="Shopping Cart"
           >
             <FaShoppingCart size={24} />
-            {/* A cart item count badge can be added here later */}
           </Link>
 
           {userInfo ? (
-            // Logged-in User Menu
             <div className="relative">
               <button
                 onClick={() => setUserMenuOpen(!userMenuOpen)}
-                className="flex items-center text-gray-600 hover:text-blue-600"
+                className="flex items-center text-gray-600 hover:text-primary"
                 title="My Account"
               >
                 <FaUser size={24} />
@@ -75,14 +70,14 @@ const Header = () => {
                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 ring-1 ring-black ring-opacity-5 animation-fade-in">
                   <Link
                     to="/profile"
-                    className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-secondary"
                     onClick={() => setUserMenuOpen(false)}
                   >
                     <FaUser className="mr-3" /> Profile
                   </Link>
                   <Link
                     to="/wishlist"
-                    className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-secondary"
                     onClick={() => setUserMenuOpen(false)}
                   >
                     <FaHeart className="mr-3" /> My Wishlist
@@ -90,7 +85,7 @@ const Header = () => {
                   {userInfo.role === 'user' && (
                     <Link
                       to="/become-seller"
-                      className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-secondary"
                       onClick={() => setUserMenuOpen(false)}
                     >
                       <FaStore className="mr-3" /> Become a Seller
@@ -98,7 +93,7 @@ const Header = () => {
                   )}
                   <button
                     onClick={logoutHandler}
-                    className="flex items-center w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    className="flex items-center w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-secondary"
                   >
                     <FaSignOutAlt className="mr-3" /> Logout
                   </button>
@@ -106,102 +101,97 @@ const Header = () => {
               )}
             </div>
           ) : (
-            // Guest "Sign In" Link
             <Link
               to="/login"
-              className="flex items-center text-gray-600 hover:text-blue-600"
+              className="flex items-center text-gray-600 hover:text-primary"
             >
               <FaUser size={24} />
               <span className="ml-2 font-semibold">Sign In</span>
             </Link>
           )}
 
-          {/* Seller & Admin "Manage" Menu */}
           {userInfo && (userInfo.role === 'seller' || userInfo.isAdmin) && (
             <div className="relative">
               <button
                 onClick={() => setAdminMenuOpen(!adminMenuOpen)}
-                className="flex items-center text-gray-600 hover:text-blue-600 font-semibold"
+                className="flex items-center text-gray-600 hover:text-primary font-semibold"
               >
                 Manage
               </button>
               {adminMenuOpen && (
                 <div className="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg py-1 ring-1 ring-black ring-opacity-5 animation-fade-in">
-                  {/* Seller-Specific Links */}
                   {userInfo.role === 'seller' && (
                     <>
                       <Link
                         to="/seller/dashboard"
-                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-secondary"
                         onClick={() => setAdminMenuOpen(false)}
                       >
                         <FaTachometerAlt className="mr-3" /> Dashboard
                       </Link>
-                      {/* --- NEW LINK: Inventory --- */}
                       <Link
                         to="/seller/inventory"
-                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-secondary"
                         onClick={() => setAdminMenuOpen(false)}
                       >
                         <FaBoxOpen className="mr-3" /> Inventory
                       </Link>
                       <Link
                         to="/seller/productlist"
-                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-secondary"
                         onClick={() => setAdminMenuOpen(false)}
                       >
                         <FaBox className="mr-3" /> My Products
                       </Link>
                       <Link
                         to="/seller/orderlist"
-                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-secondary"
                         onClick={() => setAdminMenuOpen(false)}
                       >
                         <FaShoppingCart className="mr-3" /> My Sales
                       </Link>
                     </>
                   )}
-                  {/* Admin-Specific Links */}
                   {userInfo.isAdmin && (
                     <>
                       <Link
                         to="/admin/dashboard"
-                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-secondary"
                         onClick={() => setAdminMenuOpen(false)}
                       >
                         <FaTachometerAlt className="mr-3" /> Dashboard
                       </Link>
                       <Link
                         to="/admin/couponlist"
-                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-secondary"
                         onClick={() => setAdminMenuOpen(false)}
                       >
                         <FaTicketAlt className="mr-3" /> Coupons
                       </Link>
                       <Link
                         to="/admin/productlist"
-                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-secondary"
                         onClick={() => setAdminMenuOpen(false)}
                       >
                         <FaBox className="mr-3" /> All Products
                       </Link>
                       <Link
                         to="/admin/orderlist"
-                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-secondary"
                         onClick={() => setAdminMenuOpen(false)}
                       >
                         <FaShoppingCart className="mr-3" /> All Orders
                       </Link>
                       <Link
                         to="/admin/userlist"
-                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-secondary"
                         onClick={() => setAdminMenuOpen(false)}
                       >
                         <FaUsers className="mr-3" /> Users
                       </Link>
                       <Link
                         to="/admin/sellerlist"
-                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-secondary"
                         onClick={() => setAdminMenuOpen(false)}
                       >
                         <FaStore className="mr-3" /> Sellers

@@ -20,23 +20,18 @@ const ProductPage = () => {
 
   const { userInfo } = useSelector((state) => state.auth);
 
-  // --- STATE ---
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [qty, setQty] = useState(1);
   const [refetch, setRefetch] = useState(false);
   const [selectedSize, setSelectedSize] = useState(null);
-
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
   const [reviewError, setReviewError] = useState(null);
-
   const [isInWishlist, setIsInWishlist] = useState(false);
+  const [qnaError, setQnaError] = useState(null);
 
-  const [qnaError, setQnaError] = useState(null); // ✅ QnA error handling
-
-  // --- FETCH PRODUCT & WISHLIST ---
   useEffect(() => {
     const fetchProductAndWishlist = async () => {
       setLoading(true);
@@ -65,18 +60,15 @@ const ProductPage = () => {
     fetchProductAndWishlist();
   }, [productId, userInfo, refetch]);
 
-  // --- ADD TO CART HANDLER ---
   const addToCartHandler = () => {
     if (product.category === 'Clothing' && !selectedSize) {
       alert('Please select a size');
       return;
     }
-    // Pass the entire product object along with qty
     dispatch(addToCart({ ...product, qty, size: selectedSize }));
     navigate('/cart');
   };
 
-  // --- REVIEW HANDLER ---
   const submitReviewHandler = async (e) => {
     e.preventDefault();
     setReviewError(null);
@@ -100,7 +92,6 @@ const ProductPage = () => {
     }
   };
 
-  // --- WISHLIST HANDLER ---
   const wishlistHandler = async () => {
     if (!userInfo) {
       navigate('/login');
@@ -121,7 +112,6 @@ const ProductPage = () => {
     }
   };
 
-  // --- QNA SUBMIT HANDLER ---
   const handleQuestionSubmit = async (question) => {
     setQnaError(null);
     try {
@@ -144,7 +134,7 @@ const ProductPage = () => {
 
   const Loader = () => (
     <div className="flex justify-center items-center h-screen">
-      <FaSpinner className="animate-spin text-blue-600 text-5xl" />
+      <FaSpinner className="animate-spin text-primary text-5xl" />
     </div>
   );
 
@@ -157,7 +147,7 @@ const ProductPage = () => {
       <div className="container mx-auto px-4 py-8 animation-fade-in">
         <Link
           to="/"
-          className="inline-flex items-center gap-2 mb-8 text-gray-600 hover:text-gray-900 font-semibold"
+          className="inline-flex items-center gap-2 mb-8 text-gray-600 hover:text-dark font-semibold"
         >
           <FaArrowLeft /> Back to Products
         </Link>
@@ -165,10 +155,14 @@ const ProductPage = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
           {/* --- IMAGE CAROUSEL --- */}
           <div>
-            <Carousel showArrows={true} showThumbs={true}>
+            <Carousel showArrows={true} showThumbs={true} className="rounded-lg overflow-hidden shadow-lg">
               {product.images.map((image, index) => (
-                <div key={index}>
-                  <img src={image} alt={`${product.name} - view ${index + 1}`} />
+                <div key={index} className="h-[500px] bg-gray-100 flex items-center justify-center">
+                  <img
+                    src={image}
+                    alt={`${product.name} - view ${index + 1}`}
+                    className="h-full w-full object-contain"
+                  />
                 </div>
               ))}
             </Carousel>
@@ -176,14 +170,14 @@ const ProductPage = () => {
 
           {/* --- PRODUCT DETAILS --- */}
           <div>
-            <span className="text-sm font-semibold text-blue-600">{product.category}</span>
-            <h1 className="text-4xl font-bold text-gray-800 my-2">{product.name}</h1>
+            <span className="text-sm font-semibold text-primary">{product.category}</span>
+            <h1 className="text-4xl font-bold text-dark my-2">{product.name}</h1>
 
             <div className="mb-4">
               <span className="text-sm text-gray-500">Sold by: </span>
               <Link
                 to={`/seller/${product.user._id}`}
-                className="text-sm font-semibold text-blue-600 hover:underline"
+                className="text-sm font-semibold text-primary hover:underline"
               >
                 {product.seller?.shopName || 'ShopSphere Store'}
               </Link>
@@ -195,7 +189,7 @@ const ProductPage = () => {
             <p className="text-gray-600 leading-relaxed mb-6">{product.description}</p>
             {product.category === 'Clothing' && (
               <div className="mb-6">
-                <span className="text-gray-700 font-medium text-lg">Size:</span>
+                <span className="text-dark font-medium text-lg">Size:</span>
                 <div className="flex gap-2 mt-2">
                   {product.sizes.map((size) => (
                     <button
@@ -203,8 +197,8 @@ const ProductPage = () => {
                       onClick={() => setSelectedSize(size)}
                       className={`px-4 py-2 border rounded-md ${
                         selectedSize === size
-                          ? 'bg-blue-600 text-white'
-                          : 'bg-white text-gray-700'
+                          ? 'bg-primary text-white'
+                          : 'bg-white text-dark'
                       }`}
                     >
                       {size}
@@ -214,11 +208,10 @@ const ProductPage = () => {
               </div>
             )}
 
-            {/* --- ACTION BOX --- */}
-            <div className="bg-gray-50 rounded-lg p-6">
+            <div className="bg-secondary rounded-lg p-6">
               <div className="flex justify-between items-center mb-4">
                 <span className="text-gray-700 font-medium text-lg">Price:</span>
-                <span className="text-3xl font-bold text-gray-900">₹{product.price}</span>
+                <span className="text-3xl font-bold text-dark">₹{product.price}</span>
               </div>
               <div className="flex justify-between items-center mb-6">
                 <span className="text-gray-700 font-medium text-lg">Status:</span>
@@ -235,7 +228,7 @@ const ProductPage = () => {
 
               {product.countInStock > 0 && (
                 <div className="flex items-center gap-4 mb-6">
-                  <span className="text-gray-700 font-medium text-lg">Quantity:</span>
+                  <span className="text-dark font-medium text-lg">Quantity:</span>
                   <select
                     value={qty}
                     onChange={(e) => setQty(Number(e.target.value))}
@@ -275,7 +268,6 @@ const ProductPage = () => {
           </div>
         </div>
 
-        {/* --- REVIEWS --- */}
         <div className="mt-16">
           <h2 className="text-3xl font-bold mb-8 border-b pb-4">Customer Reviews</h2>
           <div className="grid md:grid-cols-2 gap-12">
@@ -288,7 +280,7 @@ const ProductPage = () => {
               {product.reviews.map((review) => (
                 <div key={review._id} className="border-b pb-6">
                   <div className="flex items-center mb-2">
-                    <strong className="mr-4 text-gray-800">{review.name}</strong>
+                    <strong className="mr-4 text-dark">{review.name}</strong>
                     <Rating value={review.rating} />
                   </div>
                   <p className="text-gray-500 text-sm mb-3">
@@ -301,14 +293,14 @@ const ProductPage = () => {
             <div>
               <h3 className="text-2xl font-bold mb-4">Write a Review</h3>
               {userInfo ? (
-                <form onSubmit={submitReviewHandler} className="bg-gray-50 p-6 rounded-lg">
+                <form onSubmit={submitReviewHandler} className="bg-secondary p-6 rounded-lg">
                   {reviewError && (
                     <div className="p-3 mb-4 text-sm text-red-700 bg-red-100 rounded-lg">
                       {reviewError}
                     </div>
                   )}
                   <div className="mb-4">
-                    <label className="block text-gray-700 font-medium mb-2">Your Rating</label>
+                    <label className="block text-dark font-medium mb-2">Your Rating</label>
                     <select
                       value={rating}
                       onChange={(e) => setRating(Number(e.target.value))}
@@ -324,7 +316,7 @@ const ProductPage = () => {
                     </select>
                   </div>
                   <div className="mb-4">
-                    <label className="block text-gray-700 font-medium mb-2">Your Comment</label>
+                    <label className="block text-dark font-medium mb-2">Your Comment</label>
                     <textarea
                       rows="4"
                       value={comment}
@@ -348,7 +340,6 @@ const ProductPage = () => {
           </div>
         </div>
 
-        {/* --- QNA --- */}
         <div className="mt-16">
           <h2 className="text-3xl font-bold mb-8 border-b pb-4">Customer Questions & Answers</h2>
           <QnaSection
@@ -359,7 +350,6 @@ const ProductPage = () => {
           {qnaError && <div className="text-red-500 mt-4">{qnaError}</div>}
         </div>
 
-        {/* --- RELATED PRODUCTS --- */}
         <div className="mt-16">
           <h2 className="text-3xl font-bold mb-8 border-b pb-4">Related Products</h2>
           <RelatedProducts product={product} />

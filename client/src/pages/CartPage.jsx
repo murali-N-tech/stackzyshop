@@ -1,5 +1,3 @@
-// client/src/pages/CartPage.jsx
-
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
@@ -71,12 +69,12 @@ const CartPage = () => {
     <>
       <Meta title="Shopping Cart | ShopSphere" />
       <div className="container mx-auto px-4 py-8 animation-fade-in">
-        <h1 className="text-4xl font-bold mb-8 text-gray-800">
+        <h1 className="text-4xl font-bold mb-8 text-dark">
           Your Shopping Cart
         </h1>
         {cartItems.length === 0 ? (
-          <div className="text-center py-20 bg-gray-50 rounded-lg shadow">
-            <h2 className="text-2xl font-semibold text-gray-700">
+          <div className="text-center py-20 bg-secondary rounded-lg shadow">
+            <h2 className="text-2xl font-semibold text-dark">
               Your cart is empty.
             </h2>
             <p className="text-gray-500 mt-2 mb-6">
@@ -91,7 +89,6 @@ const CartPage = () => {
           </div>
         ) : (
           <div className="grid lg:grid-cols-3 gap-8 items-start">
-            {/* Cart Items List */}
             <div className="lg:col-span-2 bg-white p-6 rounded-lg shadow-md">
               <div className="space-y-6">
                 {cartItems.map((item) => {
@@ -113,7 +110,7 @@ const CartPage = () => {
                         <div>
                           <Link
                             to={`/product/${item._id}`}
-                            className="font-semibold text-lg text-gray-800 hover:text-blue-600"
+                            className="font-semibold text-lg text-dark hover:text-primary"
                           >
                             {item.name}
                           </Link>
@@ -131,7 +128,7 @@ const CartPage = () => {
                           onChange={(e) =>
                             addToCartHandler(item, Number(e.target.value))
                           }
-                          className="p-2 border rounded-md focus:ring-2 focus:ring-blue-500"
+                          className="p-2 border rounded-md focus:ring-2 focus:ring-primary"
                         >
                           {[...Array(item.countInStock).keys()].map((x) => (
                             <option key={x + 1} value={x + 1}>
@@ -155,7 +152,6 @@ const CartPage = () => {
               </div>
             </div>
 
-            {/* Order Summary */}
             <div className="lg:col-span-1">
               <div className="bg-white p-6 rounded-lg shadow-md sticky top-24">
                 <h2 className="text-2xl font-bold border-b pb-4 mb-4">
@@ -198,7 +194,7 @@ const CartPage = () => {
                             setCouponCode(e.target.value.toUpperCase())
                           }
                           placeholder="Enter Code"
-                          className="w-full p-2 border rounded-l-md focus:ring-2 focus:ring-blue-500"
+                          className="w-full p-2 border rounded-l-md focus:ring-2 focus:ring-primary"
                         />
                         <Button type="submit" className="rounded-l-none">
                           Apply

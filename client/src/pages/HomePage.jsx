@@ -72,7 +72,7 @@ const HomePage = () => {
 
   const Loader = () => (
     <div className="flex justify-center items-center py-24">
-      <FaSpinner className="animate-spin text-blue-600 text-4xl" />
+      <FaSpinner className="animate-spin text-primary text-4xl" />
       <span className="ml-4 text-lg text-gray-600">Loading Products...</span>
     </div>
   );
@@ -83,15 +83,13 @@ const HomePage = () => {
       {!keyword && !location.search && <ProductCarousel />}
       
       <div className="container mx-auto py-8 grid grid-cols-1 lg:grid-cols-4 gap-8 px-4">
-        {/* Filter Sidebar */}
         <div className="lg:col-span-1">
           <FilterSidebar onFilterChange={handleFilterChange} />
         </div>
 
-        {/* Products Section */}
         <div className="lg:col-span-3">
           <div className="flex justify-between items-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-800">
+            <h1 className="text-3xl font-bold text-dark">
               {keyword ? `Search Results for "${keyword}"` : 'Latest Products'}
             </h1>
             <select onChange={(e) => handleSortChange(e.target.value)} className="p-2 border rounded-md">
@@ -117,8 +115,8 @@ const HomePage = () => {
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-20 bg-gray-50 rounded-lg">
-                  <h2 className="text-2xl font-semibold text-gray-700">No Products Found</h2>
+                <div className="text-center py-20 bg-secondary rounded-lg">
+                  <h2 className="text-2xl font-semibold text-dark">No Products Found</h2>
                   <p className="text-gray-500 mt-2">Try adjusting your search or filters.</p>
                 </div>
               )}
