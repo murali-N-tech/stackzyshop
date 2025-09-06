@@ -6,13 +6,14 @@ import CheckoutSteps from '../components/CheckoutSteps';
 import Button from '../components/Button';
 import Meta from '../components/Meta';
 import { useOrder } from '../hooks/useOrder';
+import { selectCart } from '../slices/cartSlice'; // 1. IMPORT THE SELECTOR
 
 const CheckoutPage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { loading, error, placeOrderHandler } = useOrder();
 
-  const cart = useSelector((state) => state.cart);
+  const cart = useSelector(selectCart); // 2. USE THE CORRECT SELECTOR HERE
   const { userInfo } = useSelector((state) => state.auth);
   
   const [currentStep, setCurrentStep] = useState(1); // 1: Shipping, 2: Payment, 3: Order
@@ -138,11 +139,11 @@ const CheckoutPage = () => {
                          ))}
                      </div>
                      <div className="border-t pt-4 space-y-2">
-                         <div className="flex justify-between text-sm"><span>Subtotal:</span><span>₹{cart.itemsPrice}</span></div>
+                         <div className="flex justify-between text-sm"><span>Subtotal:</span><span>₹{cart.itemsPrice.toFixed(2)}</span></div>
                          {cart.discount > 0 && <div className="flex justify-between text-sm text-green-600"><span>Discount:</span><span>-₹{cart.discount.toFixed(2)}</span></div>}
-                         <div className="flex justify-between text-sm"><span>Shipping:</span><span>₹{cart.shippingPrice}</span></div>
-                         <div className="flex justify-between text-sm"><span>Tax:</span><span>₹{cart.taxPrice}</span></div>
-                         <div className="flex justify-between font-bold text-lg mt-2 pt-2 border-t"><span>Total:</span><span>₹{cart.totalPrice}</span></div>
+                         <div className="flex justify-between text-sm"><span>Shipping:</span><span>₹{cart.shippingPrice.toFixed(2)}</span></div>
+                         <div className="flex justify-between text-sm"><span>Tax:</span><span>₹{cart.taxPrice.toFixed(2)}</span></div>
+                         <div className="flex justify-between font-bold text-lg mt-2 pt-2 border-t"><span>Total:</span><span>₹{cart.totalPrice.toFixed(2)}</span></div>
                      </div>
                  </div>
             </div>

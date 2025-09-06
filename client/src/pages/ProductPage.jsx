@@ -18,6 +18,7 @@ const ProductPage = () => {
 
   const { userInfo } = useSelector((state) => state.auth);
 
+  // --- STATE ---
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -30,9 +31,9 @@ const ProductPage = () => {
 
   const [isInWishlist, setIsInWishlist] = useState(false);
 
-  // ✅ New State for QnA
-  const [qnaError, setQnaError] = useState(null);
+  const [qnaError, setQnaError] = useState(null); // ✅ QnA error handling
 
+  // --- FETCH PRODUCT & WISHLIST ---
   useEffect(() => {
     const fetchProductAndWishlist = async () => {
       setLoading(true);
@@ -58,11 +59,14 @@ const ProductPage = () => {
     fetchProductAndWishlist();
   }, [productId, userInfo, refetch]);
 
+  // --- ADD TO CART HANDLER ---
   const addToCartHandler = () => {
+    // Pass the entire product object along with qty
     dispatch(addToCart({ ...product, qty }));
     navigate('/cart');
   };
 
+  // --- REVIEW HANDLER ---
   const submitReviewHandler = async (e) => {
     e.preventDefault();
     setReviewError(null);
@@ -86,6 +90,7 @@ const ProductPage = () => {
     }
   };
 
+  // --- WISHLIST HANDLER ---
   const wishlistHandler = async () => {
     if (!userInfo) {
       navigate('/login');
@@ -106,7 +111,7 @@ const ProductPage = () => {
     }
   };
 
-  // ✅ Handle Question Submission
+  // --- QNA SUBMIT HANDLER ---
   const handleQuestionSubmit = async (question) => {
     setQnaError(null);
     try {
@@ -121,7 +126,7 @@ const ProductPage = () => {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || 'Failed to submit question');
       alert('Question submitted successfully!');
-      setRefetch(!refetch); // Refetch product data to show the new question
+      setRefetch(!refetch);
     } catch (err) {
       setQnaError(err.message);
     }
@@ -148,7 +153,7 @@ const ProductPage = () => {
         </Link>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-          {/* Image Column */}
+          {/* --- IMAGE CAROUSEL --- */}
           <div>
             <Carousel showArrows={true} showThumbs={true}>
               {product.images.map((image, index) => (
@@ -159,7 +164,7 @@ const ProductPage = () => {
             </Carousel>
           </div>
 
-          {/* Details Column */}
+          {/* --- PRODUCT DETAILS --- */}
           <div>
             <span className="text-sm font-semibold text-blue-600">{product.category}</span>
             <h1 className="text-4xl font-bold text-gray-800 my-2">{product.name}</h1>
@@ -179,7 +184,7 @@ const ProductPage = () => {
             </div>
             <p className="text-gray-600 leading-relaxed mb-6">{product.description}</p>
 
-            {/* Action Box */}
+            {/* --- ACTION BOX --- */}
             <div className="bg-gray-50 rounded-lg p-6">
               <div className="flex justify-between items-center mb-4">
                 <span className="text-gray-700 font-medium text-lg">Price:</span>
@@ -240,7 +245,7 @@ const ProductPage = () => {
           </div>
         </div>
 
-        {/* Reviews Section */}
+        {/* --- REVIEWS --- */}
         <div className="mt-16">
           <h2 className="text-3xl font-bold mb-8 border-b pb-4">Customer Reviews</h2>
           <div className="grid md:grid-cols-2 gap-12">
@@ -313,7 +318,7 @@ const ProductPage = () => {
           </div>
         </div>
 
-        {/* ✅ QnA Section */}
+        {/* --- QNA --- */}
         <div className="mt-16">
           <h2 className="text-3xl font-bold mb-8 border-b pb-4">Customer Questions & Answers</h2>
           <QnaSection
@@ -324,7 +329,7 @@ const ProductPage = () => {
           {qnaError && <div className="text-red-500 mt-4">{qnaError}</div>}
         </div>
 
-        {/* ✅ Related Products */}
+        {/* --- RELATED PRODUCTS --- */}
         <div className="mt-16">
           <h2 className="text-3xl font-bold mb-8 border-b pb-4">Related Products</h2>
           <RelatedProducts product={product} />

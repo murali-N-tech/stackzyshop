@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { clearCartItems } from '../slices/cartSlice';
+import { clearCartItems, selectCart } from '../slices/cartSlice'; // Import selectCart
 
 export const useOrder = () => {
   const [loading, setLoading] = useState(false);
@@ -9,7 +9,9 @@ export const useOrder = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { userInfo } = useSelector((state) => state.auth);
-  const cart = useSelector((state) => state.cart);
+  
+  // Use the selector to get calculated values
+  const cart = useSelector(selectCart);
 
   const placeOrderHandler = async () => {
     setLoading(true);

@@ -1,28 +1,29 @@
 import { createSlice } from '@reduxjs/toolkit';
 
+// Helper function to safely parse and round numbers
+const safeRound = (num) => Math.round(num * 100) / 100;
+
 const initialState = localStorage.getItem('cart')
   ? JSON.parse(localStorage.getItem('cart'))
   : { cartItems: [], shippingAddress: {}, paymentMethod: 'PayPal', coupon: null };
-
-// Helper function for rounding decimals
-const addDecimals = (num) => {
-  return (Math.round(num * 100) / 100).toFixed(2);
-};
 
 const cartSlice = createSlice({
   name: 'cart',
   initialState,
   reducers: {
     addToCart: (state, action) => {
-      const item = action.payload;
-      const existItem = state.cartItems.find((x) => x._id === item._id);
+      const itemToAdd = action.payload;
+      // Ensure the 'image' field is the first one from the 'images' array
+      const itemWithImage = { ...itemToAdd, image: itemToAdd.images[0] };
+      
+      const existItem = state.cartItems.find((x) => x._id === itemWithImage._id);
 
       if (existItem) {
         state.cartItems = state.cartItems.map((x) =>
-          x._id === existItem._id ? item : x
+          x._id === existItem._id ? itemWithImage : x
         );
       } else {
-        state.cartItems = [...state.cartItems, item];
+        state.cartItems = [...state.cartItems, itemWithImage];
       }
       localStorage.setItem('cart', JSON.stringify(state));
     },
@@ -38,55 +39,56 @@ const cartSlice = createSlice({
       state.paymentMethod = action.payload;
       localStorage.setItem('cart', JSON.stringify(state));
     },
-    clearCartItems: (state, action) => {
+    clearCartItems: (state) => {
       state.cartItems = [];
       localStorage.setItem('cart', JSON.stringify(state));
     },
-    // --- COUPON REDUCERS ---
     applyCoupon: (state, action) => {
       state.coupon = action.payload;
       localStorage.setItem('cart', JSON.stringify(state));
     },
-    removeCoupon: (state, action) => {
+    removeCoupon: (state) => {
       state.coupon = null;
       localStorage.setItem('cart', JSON.stringify(state));
     },
   },
 });
 
-// Selector to calculate prices on the fly
+// Selector with corrected price calculations
 export const selectCart = (state) => {
   const cart = state.cart;
-  
-  const itemsPrice = addDecimals(
-    cart.cartItems.reduce((acc, item) => acc + item.price * item.qty, 0)
+
+  const itemsPrice = safeRound(
+    cart.cartItems.reduce((acc, item) => acc + (item.price || 0) * (item.qty || 0), 0)
   );
-  
+
   let discount = 0;
   if (cart.coupon) {
     if (cart.coupon.discountType === 'Percentage') {
-      discount = (itemsPrice * cart.coupon.discountValue) / 100;
-    } else { // Fixed Amount
-      discount = cart.coupon.discountValue;
+      discount = (itemsPrice * (cart.coupon.discountValue || 0)) / 100;
+    } else {
+      discount = cart.coupon.discountValue || 0;
     }
-    // Ensure discount doesn't exceed the total price
     if (discount > itemsPrice) {
-        discount = itemsPrice;
+      discount = itemsPrice;
     }
   }
-  
-  const shippingPrice = addDecimals(itemsPrice > 100 ? 0 : 10);
-  const taxPrice = addDecimals(Number(0.15 * (itemsPrice - discount))); // Tax is calculated on discounted price
-  
-  const totalPrice = (
-    Number(itemsPrice) -
-    Number(discount) +
-    Number(shippingPrice) +
-    Number(taxPrice)
-  ).toFixed(2);
 
-  return { ...cart, itemsPrice, shippingPrice, taxPrice, discount, totalPrice };
+  const roundedDiscount = safeRound(discount);
+  const shippingPrice = safeRound(itemsPrice > 100 ? 0 : 10);
+  const taxPrice = safeRound(0.15 * (itemsPrice - roundedDiscount));
+  const totalPrice = safeRound(itemsPrice - roundedDiscount + shippingPrice + taxPrice);
+
+  return { 
+    ...cart, 
+    itemsPrice, 
+    shippingPrice, 
+    taxPrice, 
+    discount: roundedDiscount, 
+    totalPrice 
+  };
 };
+
 
 export const {
   addToCart,

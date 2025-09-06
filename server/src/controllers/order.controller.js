@@ -17,55 +17,54 @@ const addOrderItems = async (req, res) => {
       totalPrice,
     } = req.body;
 
-    if (orderItems && orderItems.length === 0) {
+    if (!orderItems || orderItems.length === 0) {
       return res.status(400).json({ message: 'No order items' });
-    } else {
-      // --- Fetch product details to get seller IDs ---
-      const productIds = orderItems.map((item) => item._id);
-      const productsFromDB = await Product.find({ _id: { $in: productIds } });
-
-      const productMap = productsFromDB.reduce((map, product) => {
-        map[product._id.toString()] = product.user; // Map productId to sellerId (user)
-        return map;
-      }, {});
-
-      const order = new Order({
-        // --- Add seller to each order item ---
-        orderItems: orderItems.map((x) => ({
-          ...x,
-          product: x._id,
-          seller: productMap[x._id], // seller’s user ID
-          _id: undefined,
-        })),
-        user: req.user._id,
-        shippingAddress,
-        paymentMethod,
-        itemsPrice: Number(itemsPrice),
-        taxPrice: Number(taxPrice),
-        shippingPrice: Number(shippingPrice),
-        totalPrice: Number(totalPrice),
-      });
-
-      const createdOrder = await order.save();
-
-      // --- SEND EMAIL CONFIRMATION ---
-      try {
-        await sendEmail({
-          to: req.user.email,
-          subject: `Order Confirmation - #${createdOrder._id}`,
-          html: `
-            <h1>Thank you for your order!</h1>
-            <p>Your order with ID <strong>#${createdOrder._id}</strong> has been placed successfully.</p>
-            <p>Total Amount: <strong>₹${createdOrder.totalPrice}</strong></p>
-            <p>We will notify you once your order has been shipped.</p>
-          `,
-        });
-      } catch (emailError) {
-        console.error('Email could not be sent:', emailError);
-      }
-
-      res.status(201).json(createdOrder);
     }
+
+    // --- Fetch product details to get seller IDs ---
+    const productIds = orderItems.map((item) => item._id);
+    const productsFromDB = await Product.find({ _id: { $in: productIds } });
+
+    const productMap = productsFromDB.reduce((map, product) => {
+      map[product._id.toString()] = product.user; // Map productId to sellerId
+      return map;
+    }, {});
+
+    const order = new Order({
+      orderItems: orderItems.map((x) => ({
+        ...x,
+        product: x._id,
+        seller: productMap[x._id], // seller’s user ID
+        _id: undefined,
+      })),
+      user: req.user._id,
+      shippingAddress,
+      paymentMethod,
+      itemsPrice: Number(itemsPrice),
+      taxPrice: Number(taxPrice),
+      shippingPrice: Number(shippingPrice),
+      totalPrice: Number(totalPrice),
+    });
+
+    const createdOrder = await order.save();
+
+    // --- SEND EMAIL CONFIRMATION ---
+    try {
+      await sendEmail({
+        to: req.user.email,
+        subject: `Order Confirmation - #${createdOrder._id}`,
+        html: `
+          <h1>Thank you for your order!</h1>
+          <p>Your order with ID <strong>#${createdOrder._id}</strong> has been placed successfully.</p>
+          <p>Total Amount: <strong>₹${createdOrder.totalPrice}</strong></p>
+          <p>We will notify you once your order has been shipped.</p>
+        `,
+      });
+    } catch (emailError) {
+      console.error('Email could not be sent:', emailError);
+    }
+
+    res.status(201).json(createdOrder);
   } catch (error) {
     console.error('ERROR PLACING ORDER:', error);
     res.status(500).json({ message: `Server Error: ${error.message}` });
@@ -109,14 +108,14 @@ const getMyOrders = async (req, res) => {
 // @route   POST /api/orders/razorpay
 // @access  Private
 const createRazorpayOrder = async (req, res) => {
-  //  implement Razorpay order creation here
+  // 👉 implement Razorpay order creation here
 };
 
 // @desc    Verify Razorpay payment & update order status
 // @route   POST /api/orders/:id/pay
 // @access  Private
 const verifyPaymentAndUpdateOrder = async (req, res) => {
-  //  implement Razorpay signature verification & order update here
+  // 👉 implement Razorpay signature verification & order update here
 };
 
 // @desc    Get all orders (Admin)
@@ -173,36 +172,36 @@ const updateOrderStatus = async (req, res) => {
     const { status } = req.body;
     const order = await Order.findById(req.params.id);
 
-    if (order) {
-      order.status = status;
-      if (status === 'Delivered') {
-        order.deliveredAt = Date.now();
-      }
-
-      const updatedOrder = await order.save();
-
-      // --- SEND SHIPPING NOTIFICATION EMAIL ---
-      if (updatedOrder.status === 'Shipped') {
-        try {
-          const orderWithUser = await Order.findById(updatedOrder._id).populate('user', 'email');
-          await sendEmail({
-            to: orderWithUser.user.email,
-            subject: `Your Order Has Shipped! - #${updatedOrder._id}`,
-            html: `
-              <h1>Your order is on its way!</h1>
-              <p>Your order with ID <strong>#${updatedOrder._id}</strong> has been shipped and will be delivered soon.</p>
-              <p>You can track your order in your profile.</p>
-            `,
-          });
-        } catch (emailError) {
-          console.error('Shipping email could not be sent:', emailError);
-        }
-      }
-
-      res.json(updatedOrder);
-    } else {
-      res.status(404).json({ message: 'Order not found' });
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
     }
+
+    order.status = status;
+    if (status === 'Delivered') {
+      order.deliveredAt = Date.now();
+    }
+
+    const updatedOrder = await order.save();
+
+    // --- SEND SHIPPING NOTIFICATION EMAIL ---
+    if (updatedOrder.status === 'Shipped') {
+      try {
+        const orderWithUser = await Order.findById(updatedOrder._id).populate('user', 'email');
+        await sendEmail({
+          to: orderWithUser.user.email,
+          subject: `Your Order Has Shipped! - #${updatedOrder._id}`,
+          html: `
+            <h1>Your order is on its way!</h1>
+            <p>Your order with ID <strong>#${updatedOrder._id}</strong> has been shipped and will be delivered soon.</p>
+            <p>You can track your order in your profile.</p>
+          `,
+        });
+      } catch (emailError) {
+        console.error('Shipping email could not be sent:', emailError);
+      }
+    }
+
+    res.json(updatedOrder);
   } catch (error) {
     res.status(500).json({ message: `Server Error: ${error.message}` });
   }
