@@ -1,3 +1,5 @@
+// server/src/models/product.model.js
+
 import mongoose from 'mongoose';
 
 // A sub-schema for reviews
@@ -98,6 +100,12 @@ const productSchema = new mongoose.Schema(
       type: Number,
       required: true,
       default: 0,
+    },
+    sizes: {
+      type: [String],
+      required: function () {
+        return this.category === 'Clothing';
+      },
     },
   },
   {

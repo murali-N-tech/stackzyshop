@@ -1,3 +1,5 @@
+// server/src/controllers/product.controller.js
+
 import Product from '../models/product.model.js';
 import Seller from '../models/seller.model.js';
 
@@ -120,7 +122,7 @@ const createProduct = async (req, res) => {
 // @access  Private/SellerOrAdmin
 const updateProduct = async (req, res) => {
   try {
-    const { name, price, description, images, brand, category, countInStock } =
+    const { name, price, description, images, brand, category, countInStock, sizes } = // Add sizes to destructuring
       req.body;
     const product = await Product.findById(req.params.id);
 
@@ -139,6 +141,11 @@ const updateProduct = async (req, res) => {
       product.brand = brand;
       product.category = category;
       product.countInStock = countInStock;
+      if (category === 'Clothing') {
+        product.sizes = sizes;
+      } else {
+        product.sizes = undefined;
+      }
 
       const updatedProduct = await product.save();
       res.json(updatedProduct);

@@ -1,3 +1,5 @@
+// client/src/pages/CartPage.jsx
+
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
@@ -115,6 +117,9 @@ const CartPage = () => {
                           >
                             {item.name}
                           </Link>
+                          {item.size && (
+                            <p className="text-gray-500">Size: {item.size}</p>
+                          )}
                           <p className="text-gray-600 font-bold mt-1">
                             ₹{item.price}
                           </p>

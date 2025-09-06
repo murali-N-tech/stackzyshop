@@ -1,3 +1,5 @@
+// client/src/pages/admin/ProductEditPage.jsx
+
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
@@ -17,6 +19,7 @@ const ProductEditPage = () => {
   const [category, setCategory] = useState('');
   const [countInStock, setCountInStock] = useState(0);
   const [description, setDescription] = useState('');
+  const [sizes, setSizes] = useState([]);
 
   // UI States
   const [loading, setLoading] = useState(true);
@@ -36,6 +39,7 @@ const ProductEditPage = () => {
         setCategory(data.category);
         setCountInStock(data.countInStock);
         setDescription(data.description);
+        setSizes(data.sizes || []);
       } catch (err) {
         setError(err.response?.data?.message || err.message);
       } finally {
@@ -52,7 +56,7 @@ const ProductEditPage = () => {
   const submitHandler = async (e) => {
     e.preventDefault();
     try {
-      const productData = { name, price, images, brand, category, countInStock, description };
+      const productData = { name, price, images, brand, category, countInStock, description, sizes };
       
       await axios.put(
         `/api/products/${productId}`,
@@ -175,6 +179,18 @@ const ProductEditPage = () => {
                 <input type="text" placeholder="Enter category" value={category} onChange={(e) => setCategory(e.target.value)} className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500" />
               </div>
             </div>
+            {category === 'Clothing' && (
+              <div>
+                <label className="block text-gray-700 font-medium mb-1">Sizes</label>
+                <input
+                  type="text"
+                  placeholder="Enter comma-separated sizes"
+                  value={sizes.join(',')}
+                  onChange={(e) => setSizes(e.target.value.split(','))}
+                  className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            )}
 
             <div>
               <label className="block text-gray-700 font-medium mb-1">Description</label>

@@ -1,3 +1,5 @@
+// client/src/pages/ProductPage.jsx
+
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
@@ -24,6 +26,7 @@ const ProductPage = () => {
   const [error, setError] = useState(null);
   const [qty, setQty] = useState(1);
   const [refetch, setRefetch] = useState(false);
+  const [selectedSize, setSelectedSize] = useState(null);
 
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
@@ -42,6 +45,9 @@ const ProductPage = () => {
         const productData = await productRes.json();
         if (!productRes.ok) throw new Error('Product not found');
         setProduct(productData);
+        if (productData.sizes && productData.sizes.length > 0) {
+          setSelectedSize(productData.sizes[0]);
+        }
 
         if (userInfo) {
           const profileRes = await fetch('/api/users/profile', {
@@ -61,8 +67,12 @@ const ProductPage = () => {
 
   // --- ADD TO CART HANDLER ---
   const addToCartHandler = () => {
+    if (product.category === 'Clothing' && !selectedSize) {
+      alert('Please select a size');
+      return;
+    }
     // Pass the entire product object along with qty
-    dispatch(addToCart({ ...product, qty }));
+    dispatch(addToCart({ ...product, qty, size: selectedSize }));
     navigate('/cart');
   };
 
@@ -183,6 +193,26 @@ const ProductPage = () => {
               <Rating value={product.rating} text={`${product.numReviews} reviews`} />
             </div>
             <p className="text-gray-600 leading-relaxed mb-6">{product.description}</p>
+            {product.category === 'Clothing' && (
+              <div className="mb-6">
+                <span className="text-gray-700 font-medium text-lg">Size:</span>
+                <div className="flex gap-2 mt-2">
+                  {product.sizes.map((size) => (
+                    <button
+                      key={size}
+                      onClick={() => setSelectedSize(size)}
+                      className={`px-4 py-2 border rounded-md ${
+                        selectedSize === size
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-white text-gray-700'
+                      }`}
+                    >
+                      {size}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* --- ACTION BOX --- */}
             <div className="bg-gray-50 rounded-lg p-6">
