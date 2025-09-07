@@ -1,3 +1,4 @@
+// File: murali-n-tech/stackzyshop/server/src/routes/user.routes.js
 import express from 'express';
 import {
   registerUser,
@@ -8,7 +9,8 @@ import {
   toggleWishlist,
   forgotPassword,
   resetPassword,
-  googleAuth, // Import the new controller
+  googleAuth,
+  phoneLogin,   // ✅ Use this instead of sendOtp/verifyOtp
 } from '../controllers/user.controller.js';
 import { protect, admin } from '../middlewares/auth.middleware.js';
 
@@ -29,7 +31,9 @@ router.post('/forgot-password', forgotPassword);
 router.post('/reset-password', resetPassword);
 
 // --- GOOGLE OAUTH ROUTE ---
-router.post('/google-auth', googleAuth); // Add the new route
+router.post('/google-auth', googleAuth);
 
+// --- PHONE AUTH ROUTE (Firebase) ---
+router.post('/phone-login', phoneLogin); // ✅ Firebase handles OTP automatically
 
 export default router;

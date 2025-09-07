@@ -1,8 +1,9 @@
+// File: murali-n-tech/stackzyshop/stackzyshop-3235c54223918767faa652b708cef5187c89e7e7/client/src/pages/LoginPage.jsx
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { setCredentials } from '../slices/authSlice';
-import { FaEnvelope, FaLock, FaSignInAlt } from 'react-icons/fa';
+import { FaEnvelope, FaLock, FaSignInAlt, FaPhone } from 'react-icons/fa';
 import { GoogleLogin } from '@react-oauth/google';
 import { jwtDecode } from 'jwt-decode';
 
@@ -118,17 +119,26 @@ const LoginPage = () => {
                 {loading ? 'Signing In...' : 'Sign In'}
               </button>
             </form>
+            <br/>
+            <br/>
+
+            <GoogleLogin
+                            onSuccess={googleSuccess}
+                            onError={googleFailure}
+            />
 
             <div className="my-4 flex items-center">
                 <div className="flex-grow border-t border-gray-300"></div>
                 <span className="flex-shrink mx-4 text-gray-400">or</span>
                 <div className="flex-grow border-t border-gray-300"></div>
             </div>
-
-            <GoogleLogin
-                onSuccess={googleSuccess}
-                onError={googleFailure}
-            />
+            
+            {/* --- NEW LINK FOR PHONE LOGIN --- */}
+            <Link to="/phone-login" className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition-transform transform hover:scale-105 flex items-center justify-center">
+              <FaPhone className="mr-2" />
+              Login with Phone
+            </Link>
+            
 
             <div className="py-4 text-center">
               <span className="text-gray-600">New Customer? </span>

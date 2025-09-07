@@ -1,3 +1,4 @@
+// File: murali-n-tech/stackzyshop/stackzyshop-3235c54223918767faa652b708cef5187c89e7e7/client/src/main.jsx
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import {
@@ -27,6 +28,7 @@ import RegisterPage from './pages/RegisterPage.jsx';
 import SellerPage from './pages/SellerPage.jsx'; // --- IMPORT NEW ---
 import ForgotPasswordPage from './pages/ForgotPasswordPage.jsx';
 import ResetPasswordPage from './pages/ResetPasswordPage.jsx';
+import PhoneAuthPage from './pages/PhoneAuthPage.jsx'; // --- NEW IMPORT ---
 
 // Private User Pages
 import CheckoutPage from './pages/CheckoutPage.jsx';
@@ -67,6 +69,7 @@ const router = createBrowserRouter(
       <Route path="/seller/:id/page/:pageNumber" element={<SellerPage />} /> {/* --- ADD PAGINATION ROUTE --- */}
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="/reset-password" element={<ResetPasswordPage />} />
+      <Route path="/phone-login" element={<PhoneAuthPage />} /> {/* --- NEW ROUTE --- */}
 
       {/* ---------------- PRIVATE ROUTES ---------------- */}
       <Route path="" element={<PrivateRoute />}>

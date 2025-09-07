@@ -1,4 +1,4 @@
-// File: server/src/models/user.model.js
+// File: murali-n-tech/stackzyshop/stackzyshop-3235c54223918767faa652b708cef5187c89e7e7/server/src/models/user.model.js
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 
@@ -25,6 +25,11 @@ const userSchema = new mongoose.Schema(
     ],
     resetPasswordOtp: { type: String },
     resetPasswordExpires: { type: Date },
+
+    // --- NEW: Phone Login fields ---
+    phoneNumber: { type: String, unique: true, sparse: true }, // sparse: allow null values to be non-unique
+    otp: { type: String },
+    otpExpires: { type: Date },
   },
   {
     timestamps: true, // Automatically adds createdAt and updatedAt
@@ -33,11 +38,10 @@ const userSchema = new mongoose.Schema(
 
 // --- Hash password before saving ---
 userSchema.pre('save', async function (next) {
-  if (!this.isModified('password') || !this.password) {
-    return next();
+  if (this.isModified('password') && this.password) {
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
   }
-  const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
   next();
 });
 

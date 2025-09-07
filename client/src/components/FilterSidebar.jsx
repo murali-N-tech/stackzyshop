@@ -82,6 +82,24 @@ const FilterSidebar = ({ onFilterChange }) => {
           Apply Price
         </button>
       </div>
+      
+      {/* NEW: Seller Rating Filter */}
+      <div className="mt-8">
+        <h3 className="font-bold text-lg mb-4 border-b pb-2">Seller Rating</h3>
+        <ul className="space-y-2">
+          <li>
+            <button onClick={() => handleFilterClick('minRating', 4)} className="text-gray-700 hover:text-blue-600 w-full text-left">
+              4 Stars & up
+            </button>
+          </li>
+          <li>
+            <button onClick={() => handleFilterClick('minRating', 3)} className="text-gray-700 hover:text-blue-600 w-full text-left">
+              3 Stars & up
+            </button>
+          </li>
+        </ul>
+      </div>
+
       <button onClick={() => onFilterChange('clear', '')} className="mt-8 w-full text-sm text-gray-500 hover:text-red-600">
         Clear All Filters
       </button>

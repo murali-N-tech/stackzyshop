@@ -30,6 +30,10 @@ const getProducts = async (req, res) => {
         filter.price.$lte = Number(req.query.maxPrice);
       }
     }
+    // NEW: Filter by minimum rating
+    if (req.query.minRating) {
+      filter.rating = { $gte: Number(req.query.minRating) };
+    }
 
     let sortOrder = {};
     if (req.query.sort) {
