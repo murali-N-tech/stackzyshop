@@ -2,6 +2,7 @@
 
 import Product from '../models/product.model.js';
 import Seller from '../models/seller.model.js';
+import Order from '../models/order.model.js';
 
 // @desc    Fetch all products with pagination, search, and filters
 // @route   GET /api/products
@@ -112,6 +113,7 @@ const createProduct = async (req, res) => {
       countInStock: 0,
       numReviews: 0,
       description: 'Sample Description',
+      variants: [],
     });
 
     const createdProduct = await product.save();
@@ -126,7 +128,7 @@ const createProduct = async (req, res) => {
 // @access  Private/SellerOrAdmin
 const updateProduct = async (req, res) => {
   try {
-    const { name, price, description, images, brand, category, countInStock, sizes } = // Add sizes to destructuring
+    const { name, price, description, images, brand, category, countInStock, variants } = 
       req.body;
     const product = await Product.findById(req.params.id);
 
@@ -144,12 +146,19 @@ const updateProduct = async (req, res) => {
       product.images = images;
       product.brand = brand;
       product.category = category;
-      product.countInStock = countInStock;
-      if (category === 'Clothing') {
-        product.sizes = sizes;
+
+      // Handle variants based on category
+      if (category === 'Clothing' && variants) {
+        product.variants = variants;
+        // Also update the main countInStock as the sum of all variants' stock
+        product.countInStock = variants.reduce((acc, v) => acc + v.countInStock, 0);
+        product.sizes = variants.map(v => v.size); // Populate sizes array for filtering
       } else {
-        product.sizes = undefined;
+        product.variants = [];
+        product.sizes = [];
+        product.countInStock = countInStock;
       }
+      
 
       const updatedProduct = await product.save();
       res.json(updatedProduct);
@@ -221,6 +230,41 @@ const createProductReview = async (req, res) => {
     } else {
       res.status(404).json({ message: 'Product not found' });
     }
+  } catch (error) {
+    res.status(500).json({ message: `Server Error: ${error.message}` });
+  }
+};
+
+// NEW FUNCTION: Vote on a review
+// @desc    Upvote or downvote a review
+// @route   PUT /api/products/:id/reviews/:reviewId/vote
+// @access  Private
+const voteReview = async (req, res) => {
+  try {
+    const { type } = req.body; // 'upvote' or 'downvote'
+    const { id, reviewId } = req.params;
+
+    const product = await Product.findById(id);
+    if (!product) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+
+    const review = product.reviews.id(reviewId);
+    if (!review) {
+      return res.status(404).json({ message: 'Review not found' });
+    }
+
+    if (type === 'upvote') {
+      review.upvotes += 1;
+    } else if (type === 'downvote') {
+      review.downvotes += 1;
+    } else {
+      return res.status(400).json({ message: 'Invalid vote type' });
+    }
+
+    await product.save();
+    res.json({ message: 'Vote recorded', review });
+
   } catch (error) {
     res.status(500).json({ message: `Server Error: ${error.message}` });
   }
@@ -354,10 +398,46 @@ const getRelatedProducts = async (req, res) => {
       _id: { $ne: product._id },
     }).limit(5);
 
-    const frequentlyBought = await Product.find({
-      category: product.category,
-      _id: { $ne: product._id },
-    }).limit(2);
+    // FIX: A more robust aggregation pipeline to fetch full product details
+    const frequentlyBought = await Order.aggregate([
+      // Find orders that contain the current product
+      { $match: { 'orderItems.product': product._id } },
+      // Deconstruct the orderItems array
+      { $unwind: '$orderItems' },
+      // Exclude the current product itself from the list
+      { $match: { 'orderItems.product': { $ne: product._id } } },
+      // Group by the other product to count co-purchases
+      {
+        $group: {
+          _id: '$orderItems.product',
+          count: { $sum: 1 },
+        },
+      },
+      // Sort by the most frequently co-purchased
+      { $sort: { count: -1 } },
+      // Limit to a few top products
+      { $limit: 2 },
+      // Look up the full product details from the `products` collection
+      {
+        $lookup: {
+          from: 'products',
+          localField: '_id',
+          foreignField: '_id',
+          as: 'productDetails',
+        },
+      },
+      // Unwind the result to get the product object
+      { $unwind: '$productDetails' },
+      // Project the desired fields from the full product document
+      {
+        $project: {
+          _id: '$productDetails._id',
+          name: '$productDetails.name',
+          images: '$productDetails.images', // Now correctly referencing the images array
+          price: '$productDetails.price',
+        },
+      },
+    ]);
 
     res.json({ related, frequentlyBought });
   } catch (error) {
@@ -379,4 +459,5 @@ export {
   createProductQuestion,
   createProductAnswer,
   getRelatedProducts,
+  voteReview,
 };

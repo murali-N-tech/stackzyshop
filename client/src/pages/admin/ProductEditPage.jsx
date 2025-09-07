@@ -5,7 +5,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import axios from 'axios';
 import Button from '../../components/Button';
-import { FaArrowLeft, FaUpload, FaTrash } from 'react-icons/fa';
+import { FaArrowLeft, FaUpload, FaTrash, FaPlus } from 'react-icons/fa';
 
 const ProductEditPage = () => {
   const { id: productId } = useParams();
@@ -19,8 +19,8 @@ const ProductEditPage = () => {
   const [category, setCategory] = useState('');
   const [countInStock, setCountInStock] = useState(0);
   const [description, setDescription] = useState('');
-  const [sizes, setSizes] = useState([]);
-
+  const [variants, setVariants] = useState([]);
+  
   // UI States
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -39,7 +39,7 @@ const ProductEditPage = () => {
         setCategory(data.category);
         setCountInStock(data.countInStock);
         setDescription(data.description);
-        setSizes(data.sizes || []);
+        setVariants(data.variants || []);
       } catch (err) {
         setError(err.response?.data?.message || err.message);
       } finally {
@@ -56,7 +56,7 @@ const ProductEditPage = () => {
   const submitHandler = async (e) => {
     e.preventDefault();
     try {
-      const productData = { name, price, images, brand, category, countInStock, description, sizes };
+      const productData = { name, price, images, brand, category, countInStock, description, variants };
       
       await axios.put(
         `/api/products/${productId}`,
@@ -116,6 +116,23 @@ const ProductEditPage = () => {
     newImages.splice(index, 1);
     setImages(newImages);
   };
+  
+  const addVariantHandler = () => {
+    setVariants([...variants, { size: '', countInStock: 0 }]);
+  };
+
+  const removeVariantHandler = (index) => {
+    const newVariants = [...variants];
+    newVariants.splice(index, 1);
+    setVariants(newVariants);
+  };
+
+  const updateVariantHandler = (index, field, value) => {
+    const newVariants = [...variants];
+    newVariants[index][field] = value;
+    setVariants(newVariants);
+  };
+
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div className="text-red-500 bg-red-50 p-4 rounded-lg">{error}</div>;
@@ -144,10 +161,12 @@ const ProductEditPage = () => {
                 <label className="block text-gray-700 font-medium mb-1">Price</label>
                 <input type="number" placeholder="Enter price" value={price} onChange={(e) => setPrice(e.target.value)} className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500" />
               </div>
-               <div>
-                <label className="block text-gray-700 font-medium mb-1">Count In Stock</label>
-                <input type="number" placeholder="Enter stock" value={countInStock} onChange={(e) => setCountInStock(e.target.value)} className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500" />
-              </div>
+              {!variants.length && (
+                <div>
+                  <label className="block text-gray-700 font-medium mb-1">Count In Stock</label>
+                  <input type="number" placeholder="Enter stock" value={countInStock} onChange={(e) => setCountInStock(e.target.value)} className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+                </div>
+              )}
             </div>
 
             <div>
@@ -179,16 +198,32 @@ const ProductEditPage = () => {
                 <input type="text" placeholder="Enter category" value={category} onChange={(e) => setCategory(e.target.value)} className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500" />
               </div>
             </div>
+
             {category === 'Clothing' && (
               <div>
-                <label className="block text-gray-700 font-medium mb-1">Sizes</label>
-                <input
-                  type="text"
-                  placeholder="Enter comma-separated sizes"
-                  value={sizes.join(',')}
-                  onChange={(e) => setSizes(e.target.value.split(','))}
-                  className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
-                />
+                <div className="flex justify-between items-center mb-2">
+                  <label className="block text-gray-700 font-medium">Sizes & Stock</label>
+                  <Button type="button" onClick={addVariantHandler} className="text-xs px-3 py-1 flex items-center gap-1"><FaPlus /> Add Size</Button>
+                </div>
+                {variants.map((variant, index) => (
+                  <div key={index} className="flex gap-2 items-center mb-2">
+                    <input
+                      type="text"
+                      placeholder="Size (e.g., S, M, L)"
+                      value={variant.size}
+                      onChange={(e) => updateVariantHandler(index, 'size', e.target.value)}
+                      className="w-full p-2 border rounded-md"
+                    />
+                    <input
+                      type="number"
+                      placeholder="Stock"
+                      value={variant.countInStock}
+                      onChange={(e) => updateVariantHandler(index, 'countInStock', Number(e.target.value))}
+                      className="w-20 p-2 border rounded-md"
+                    />
+                    <Button type="button" variant="danger" onClick={() => removeVariantHandler(index)} className="px-3 py-2 text-sm"><FaTrash /></Button>
+                  </div>
+                ))}
               </div>
             )}
 

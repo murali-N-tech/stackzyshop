@@ -12,7 +12,9 @@ import {
   getMyProducts,
   getCategories,
   getBrands,
-  getRelatedProducts, // NEW
+  getRelatedProducts,
+  // NEW: Import new review voting functions
+  voteReview,
 } from '../controllers/product.controller.js';
 import { protect, admin, seller } from '../middlewares/auth.middleware.js';
 
@@ -29,6 +31,8 @@ router.get('/myproducts', protect, seller, getMyProducts);
 
 // --- USER-SPECIFIC ROUTES ---
 router.post('/:id/reviews', protect, createProductReview);
+// NEW: Route for voting on reviews
+router.put('/:id/reviews/:reviewId/vote', protect, voteReview);
 router.post('/:id/questions', protect, createProductQuestion);
 router.post('/:id/questions/:qid/answers', protect, createProductAnswer);
 
@@ -38,7 +42,7 @@ router.put('/:id', protect, seller, updateProduct);
 router.delete('/:id', protect, seller, deleteProduct);
 
 // --- DYNAMIC PUBLIC ROUTES (must be last) ---
-router.get('/:id/related', getRelatedProducts); // NEW
+router.get('/:id/related', getRelatedProducts);
 router.get('/:id', getProductById);
 
 export default router;

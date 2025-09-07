@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Product from './Product';
 import Button from './Button';
 import { addToCart } from '../slices/cartSlice';
@@ -8,7 +8,9 @@ import { addToCart } from '../slices/cartSlice';
 const RelatedProducts = ({ product }) => {
   const [recommendations, setRecommendations] = useState({ related: [], frequentlyBought: [] });
   const [loading, setLoading] = useState(true);
+  const [showPopup, setShowPopup] = useState(false); // NEW: State for pop-up
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchRecommendations = async () => {
@@ -36,6 +38,11 @@ const RelatedProducts = ({ product }) => {
     frequentlyBoughtItems.forEach(item => {
       dispatch(addToCart({ ...item, qty: 1 }));
     });
+    setShowPopup(true); // NEW: Show the pop-up
+    setTimeout(() => {
+      setShowPopup(false);
+      navigate('/cart');
+    }, 2000);
   };
 
   if (loading) {
@@ -48,6 +55,13 @@ const RelatedProducts = ({ product }) => {
 
   return (
     <div className="mt-16">
+      {showPopup && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg text-center">
+            <p className="text-lg font-semibold">All products added to cart!</p>
+          </div>
+        </div>
+      )}
       {/* Frequently Bought Together Section */}
       {recommendations.frequentlyBought.length > 0 && (
         <div className="mb-16">
@@ -57,7 +71,11 @@ const RelatedProducts = ({ product }) => {
               {frequentlyBoughtItems.map((item, index) => (
                 <React.Fragment key={item._id}>
                   <Link to={`/product/${item._id}`}>
-                    <img src={item.images[0]} alt={item.name} className="w-24 h-24 object-cover rounded-md" />
+                    <img
+                      src={item.images ? item.images[0] : item.image}
+                      alt={item.name}
+                      className="w-24 h-24 object-cover rounded-md"
+                    />
                   </Link>
                   {index < frequentlyBoughtItems.length - 1 && <span className="text-2xl font-light mx-4">+</span>}
                 </React.Fragment>

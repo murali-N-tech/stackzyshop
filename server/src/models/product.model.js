@@ -13,6 +13,9 @@ const reviewSchema = new mongoose.Schema(
     name: { type: String, required: true },
     rating: { type: Number, required: true },
     comment: { type: String, required: true },
+    // New fields for up/down votes
+    upvotes: { type: Number, default: 0 },
+    downvotes: { type: Number, default: 0 },
   },
   {
     timestamps: true,
@@ -51,6 +54,13 @@ const qnaSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+
+// New sub-schema for product variants (e.g., sizes with stock)
+const variantSchema = new mongoose.Schema({
+  size: { type: String, required: true },
+  countInStock: { type: Number, required: true, default: 0 },
+});
+
 
 const productSchema = new mongoose.Schema(
   {
@@ -96,7 +106,7 @@ const productSchema = new mongoose.Schema(
       required: true,
       default: 0,
     },
-    countInStock: {
+    countInStock: { // Kept for non-variant products
       type: Number,
       required: true,
       default: 0,
@@ -107,6 +117,8 @@ const productSchema = new mongoose.Schema(
         return this.category === 'Clothing';
       },
     },
+    // New field for product variants (e.g., sizes with individual stock)
+    variants: [variantSchema],
   },
   {
     timestamps: true,

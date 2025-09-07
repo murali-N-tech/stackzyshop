@@ -7,11 +7,12 @@ import { addToCart } from '../slices/cartSlice';
 import Meta from '../components/Meta';
 import Rating from '../components/ui/Rating';
 import Button from '../components/Button';
-import { FaHeart, FaRegHeart, FaSpinner, FaArrowLeft } from 'react-icons/fa';
+import { FaHeart, FaRegHeart, FaSpinner, FaArrowLeft, FaThumbsUp, FaThumbsDown } from 'react-icons/fa';
 import { Carousel } from 'react-responsive-carousel';
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
 import QnaSection from '../components/QnaSection';
 import RelatedProducts from '../components/RelatedProducts';
+import axios from 'axios';
 
 const ProductPage = () => {
   const { id: productId } = useParams();
@@ -26,11 +27,12 @@ const ProductPage = () => {
   const [qty, setQty] = useState(1);
   const [refetch, setRefetch] = useState(false);
   const [selectedSize, setSelectedSize] = useState(null);
-  const [rating, setRating] = useState(0);
+  const [reviewRating, setReviewRating] = useState(0);
   const [comment, setComment] = useState('');
   const [reviewError, setReviewError] = useState(null);
   const [isInWishlist, setIsInWishlist] = useState(false);
   const [qnaError, setQnaError] = useState(null);
+  const [showPopup, setShowPopup] = useState(false);
 
   useEffect(() => {
     const fetchProductAndWishlist = async () => {
@@ -40,8 +42,11 @@ const ProductPage = () => {
         const productData = await productRes.json();
         if (!productRes.ok) throw new Error('Product not found');
         setProduct(productData);
-        if (productData.sizes && productData.sizes.length > 0) {
-          setSelectedSize(productData.sizes[0]);
+
+        if (productData.variants && productData.variants.length > 0) {
+          setSelectedSize(productData.variants[0].size);
+        } else if (productData.sizes && productData.sizes.length > 0) {
+           setSelectedSize(productData.sizes[0]);
         }
 
         if (userInfo) {
@@ -66,7 +71,11 @@ const ProductPage = () => {
       return;
     }
     dispatch(addToCart({ ...product, qty, size: selectedSize }));
-    navigate('/cart');
+    setShowPopup(true);
+    setTimeout(() => {
+        setShowPopup(false);
+        navigate('/cart');
+    }, 2000);
   };
 
   const submitReviewHandler = async (e) => {
@@ -79,12 +88,13 @@ const ProductPage = () => {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${userInfo.token}`,
         },
-        body: JSON.stringify({ rating, comment }),
+        // FIX: Change 'rating' to 'reviewRating' to match state variable
+        body: JSON.stringify({ rating: reviewRating, comment }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || 'Failed to submit review');
       alert('Review submitted successfully!');
-      setRating(0);
+      setReviewRating(0);
       setComment('');
       setRefetch(!refetch);
     } catch (err) {
@@ -132,18 +142,48 @@ const ProductPage = () => {
     }
   };
 
+  const handleReviewVote = async (reviewId, type) => {
+    if (!userInfo) {
+      navigate('/login');
+      return;
+    }
+    try {
+      await axios.put(`/api/products/${productId}/reviews/${reviewId}/vote`, { type }, {
+        headers: { Authorization: `Bearer ${userInfo.token}` }
+      });
+      setRefetch(!refetch);
+    } catch (err) {
+      alert('Failed to submit vote.');
+    }
+  };
+
+
   const Loader = () => (
     <div className="flex justify-center items-center h-screen">
       <FaSpinner className="animate-spin text-primary text-5xl" />
     </div>
   );
 
+  const getStockForSize = (size) => {
+    const variant = product.variants?.find(v => v.size === size);
+    return variant ? variant.countInStock : 0;
+  };
+  
   if (loading) return <Loader />;
   if (error) return <div className="text-center py-12 text-red-500">Error: {error}</div>;
+  
+  const maxQty = product.category === 'Clothing' && selectedSize ? getStockForSize(selectedSize) : product.countInStock;
 
   return (
     <>
       <Meta title={product.name} description={product.description} />
+      {showPopup && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg text-center">
+            <p className="text-lg font-semibold">Product added to cart!</p>
+          </div>
+        </div>
+      )}
       <div className="container mx-auto px-4 py-8 animation-fade-in">
         <Link
           to="/"
@@ -153,7 +193,7 @@ const ProductPage = () => {
         </Link>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-          {/* --- IMAGE CAROUSEL --- */}
+          {/* --- IMAGE CAROUSEL & 3D VIEWER --- */}
           <div>
             <Carousel showArrows={true} showThumbs={true} className="rounded-lg overflow-hidden shadow-lg">
               {product.images.map((image, index) => (
@@ -187,27 +227,32 @@ const ProductPage = () => {
               <Rating value={product.rating} text={`${product.numReviews} reviews`} />
             </div>
             <p className="text-gray-600 leading-relaxed mb-6">{product.description}</p>
-            {product.category === 'Clothing' && (
+            
+            {product.variants && product.variants.length > 0 && (
               <div className="mb-6">
                 <span className="text-dark font-medium text-lg">Size:</span>
-                <div className="flex gap-2 mt-2">
-                  {product.sizes.map((size) => (
-                    <button
-                      key={size}
-                      onClick={() => setSelectedSize(size)}
-                      className={`px-4 py-2 border rounded-md ${
-                        selectedSize === size
-                          ? 'bg-primary text-white'
-                          : 'bg-white text-dark'
-                      }`}
-                    >
-                      {size}
-                    </button>
-                  ))}
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {product.variants.map((variant) => {
+                    const stock = getStockForSize(variant.size);
+                    return (
+                      <button
+                        key={variant.size}
+                        onClick={() => setSelectedSize(variant.size)}
+                        className={`px-4 py-2 border rounded-md ${
+                          selectedSize === variant.size
+                            ? 'bg-primary text-white'
+                            : 'bg-white text-dark'
+                        } ${stock === 0 && 'opacity-50 cursor-not-allowed'}`}
+                        disabled={stock === 0}
+                      >
+                        {variant.size} ({stock > 0 ? `${stock} left` : 'Out of stock'})
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             )}
-
+            
             <div className="bg-secondary rounded-lg p-6">
               <div className="flex justify-between items-center mb-4">
                 <span className="text-gray-700 font-medium text-lg">Price:</span>
@@ -229,17 +274,25 @@ const ProductPage = () => {
               {product.countInStock > 0 && (
                 <div className="flex items-center gap-4 mb-6">
                   <span className="text-dark font-medium text-lg">Quantity:</span>
-                  <select
-                    value={qty}
-                    onChange={(e) => setQty(Number(e.target.value))}
-                    className="p-2 border rounded-md"
-                  >
-                    {[...Array(product.countInStock).keys()].map((x) => (
-                      <option key={x + 1} value={x + 1}>
-                        {x + 1}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="flex items-center space-x-2">
+                     <button
+                       type="button"
+                       onClick={() => setQty(qty - 1)}
+                       disabled={qty <= 1}
+                       className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-lg text-gray-600 hover:bg-gray-100 disabled:opacity-50"
+                     >
+                       -
+                     </button>
+                     <span className="w-8 text-center text-lg">{qty}</span>
+                     <button
+                       type="button"
+                       onClick={() => setQty(qty + 1)}
+                       disabled={qty >= maxQty}
+                       className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-lg text-gray-600 hover:bg-gray-100 disabled:opacity-50"
+                     >
+                       +
+                     </button>
+                   </div>
                 </div>
               )}
 
@@ -247,7 +300,7 @@ const ProductPage = () => {
                 <Button
                   onClick={addToCartHandler}
                   className="flex-1"
-                  disabled={product.countInStock === 0}
+                  disabled={product.countInStock === 0 || (product.category === 'Clothing' && getStockForSize(selectedSize) < qty)}
                 >
                   Add to Cart
                 </Button>
@@ -282,11 +335,26 @@ const ProductPage = () => {
                   <div className="flex items-center mb-2">
                     <strong className="mr-4 text-dark">{review.name}</strong>
                     <Rating value={review.rating} />
+                    {review.upvotes > review.downvotes && (
+                       <span className="ml-4 text-xs font-semibold text-green-600 bg-green-100 px-2 py-1 rounded-full">Most Helpful</span>
+                    )}
                   </div>
                   <p className="text-gray-500 text-sm mb-3">
                     {new Date(review.createdAt).toLocaleDateString()}
                   </p>
                   <p className="text-gray-700">{review.comment}</p>
+                  {userInfo && (
+                    <div className="flex items-center gap-4 mt-4">
+                      <button onClick={() => handleReviewVote(review._id, 'upvote')} className="text-gray-500 hover:text-green-600 flex items-center gap-1">
+                        <FaThumbsUp />
+                        <span className="text-xs">{review.upvotes}</span>
+                      </button>
+                      <button onClick={() => handleReviewVote(review._id, 'downvote')} className="text-gray-500 hover:text-red-600 flex items-center gap-1">
+                        <FaThumbsDown />
+                        <span className="text-xs">{review.downvotes}</span>
+                      </button>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -302,8 +370,8 @@ const ProductPage = () => {
                   <div className="mb-4">
                     <label className="block text-dark font-medium mb-2">Your Rating</label>
                     <select
-                      value={rating}
-                      onChange={(e) => setRating(Number(e.target.value))}
+                      value={reviewRating}
+                      onChange={(e) => setReviewRating(Number(e.target.value))}
                       required
                       className="p-2 border rounded-md w-full"
                     >
