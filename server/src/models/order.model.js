@@ -18,7 +18,6 @@ const orderSchema = new mongoose.Schema(
           required: true,
           ref: 'Product',
         },
-        // --- ADD SELLER FIELD ---
         seller: {
           type: mongoose.Schema.Types.ObjectId,
           required: true,
@@ -31,6 +30,8 @@ const orderSchema = new mongoose.Schema(
       city: { type: String, required: true },
       postalCode: { type: String, required: true },
       country: { type: String, required: true },
+      // --- NEW: Added phone number to shipping address ---
+      phone: { type: String, required: true },
     },
     paymentMethod: {
       type: String,
@@ -62,16 +63,12 @@ const orderSchema = new mongoose.Schema(
       required: true,
       default: 0.0,
     },
-
-    // --- NEW STATUS FIELD ---
     status: {
       type: String,
       required: true,
       enum: ['Processing', 'Shipped', 'Delivered', 'Cancelled'],
       default: 'Processing',
     },
-
-    // Payment tracking
     isPaid: {
       type: Boolean,
       required: true,
@@ -80,8 +77,6 @@ const orderSchema = new mongoose.Schema(
     paidAt: {
       type: Date,
     },
-
-    // Delivery tracking (set when status = Delivered)
     deliveredAt: {
       type: Date,
     },

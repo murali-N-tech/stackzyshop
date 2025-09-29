@@ -3,7 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import OrderTracker from '../components/OrderTracker';
 import Button from '../components/Button';
-import { FaSpinner, FaUser, FaMapMarkerAlt, FaCreditCard } from 'react-icons/fa';
+import { FaSpinner, FaUser, FaMapMarkerAlt, FaCreditCard, FaPhone } from 'react-icons/fa';
 
 const OrderPage = () => {
   const { id: orderId } = useParams();
@@ -60,7 +60,12 @@ const OrderPage = () => {
   );
 
   if (loading) return <Loader />;
-  if (error) return <div className="text-center py-12 text-red-500 bg-red-50 p-4 rounded-lg">Error: {error}</div>;
+  if (error)
+    return (
+      <div className="text-center py-12 text-red-500 bg-red-50 p-4 rounded-lg">
+        Error: {error}
+      </div>
+    );
 
   return (
     <div className="container mx-auto mt-8 px-4 animation-fade-in">
@@ -157,6 +162,13 @@ const OrderPage = () => {
               {order.shippingAddress.postalCode},{' '}
               {order.shippingAddress.country}
             </p>
+            {/* --- NEW: Display phone number --- */}
+            {order.shippingAddress.phone && (
+              <p className="text-gray-700 mt-2 flex items-center">
+                <FaPhone className="mr-2 text-gray-400" />
+                {order.shippingAddress.phone}
+              </p>
+            )}
           </div>
 
           <div className="bg-white p-6 rounded-lg shadow-lg">

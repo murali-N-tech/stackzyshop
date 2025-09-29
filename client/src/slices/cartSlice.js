@@ -15,7 +15,7 @@ const cartSlice = createSlice({
       const itemToAdd = action.payload;
       // Ensure the 'image' field is the first one from the 'images' array
       const itemWithImage = { ...itemToAdd, image: itemToAdd.images[0] };
-      
+
       const existItem = state.cartItems.find((x) => x._id === itemWithImage._id);
 
       if (existItem) {
@@ -31,6 +31,7 @@ const cartSlice = createSlice({
       state.cartItems = state.cartItems.filter((x) => x._id !== action.payload);
       localStorage.setItem('cart', JSON.stringify(state));
     },
+    // --- MODIFIED: Ensure the entire address, including phone, is saved ---
     saveShippingAddress: (state, action) => {
       state.shippingAddress = action.payload;
       localStorage.setItem('cart', JSON.stringify(state));
@@ -59,7 +60,10 @@ export const selectCart = (state) => {
   const cart = state.cart;
 
   const itemsPrice = safeRound(
-    cart.cartItems.reduce((acc, item) => acc + (item.price || 0) * (item.qty || 0), 0)
+    cart.cartItems.reduce(
+      (acc, item) => acc + (item.price || 0) * (item.qty || 0),
+      0
+    )
   );
 
   let discount = 0;
@@ -77,18 +81,19 @@ export const selectCart = (state) => {
   const roundedDiscount = safeRound(discount);
   const shippingPrice = safeRound(itemsPrice > 100 ? 0 : 10);
   const taxPrice = safeRound(0.15 * (itemsPrice - roundedDiscount));
-  const totalPrice = safeRound(itemsPrice - roundedDiscount + shippingPrice + taxPrice);
+  const totalPrice = safeRound(
+    itemsPrice - roundedDiscount + shippingPrice + taxPrice
+  );
 
-  return { 
-    ...cart, 
-    itemsPrice, 
-    shippingPrice, 
-    taxPrice, 
-    discount: roundedDiscount, 
-    totalPrice 
+  return {
+    ...cart,
+    itemsPrice,
+    shippingPrice,
+    taxPrice,
+    discount: roundedDiscount,
+    totalPrice,
   };
 };
-
 
 export const {
   addToCart,

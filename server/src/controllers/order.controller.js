@@ -21,6 +21,30 @@ const addOrderItems = async (req, res) => {
       return res.status(400).json({ message: 'No order items' });
     }
 
+    // --- Add a check for the phone number in the shipping address ---
+    if (!shippingAddress.phone) {
+      return res
+        .status(400)
+        .json({ message: 'Phone number is required for shipping.' });
+    }
+
+    // --- Check stock levels and decrement stock ---
+    for (const item of orderItems) {
+      const product = await Product.findById(item._id);
+      if (!product) {
+        return res
+          .status(404)
+          .json({ message: `Product not found: ${item.name}` });
+      }
+      if (product.countInStock < item.qty) {
+        return res
+          .status(400)
+          .json({ message: `Not enough stock for ${item.name}` });
+      }
+      product.countInStock -= item.qty;
+      await product.save();
+    }
+
     // --- Fetch product details to get seller IDs ---
     const productIds = orderItems.map((item) => item._id);
     const productsFromDB = await Product.find({ _id: { $in: productIds } });
@@ -38,7 +62,7 @@ const addOrderItems = async (req, res) => {
         _id: undefined,
       })),
       user: req.user._id,
-      shippingAddress,
+      shippingAddress, // includes phone number
       paymentMethod,
       itemsPrice: Number(itemsPrice),
       taxPrice: Number(taxPrice),
@@ -47,6 +71,10 @@ const addOrderItems = async (req, res) => {
     });
 
     const createdOrder = await order.save();
+
+    // --- (Future Enhancement) SMS Notification Placeholder ---
+    // Example:
+    // await sendSms(shippingAddress.phone, `Your order #${createdOrder._id} has been confirmed!`);
 
     // --- SEND EMAIL CONFIRMATION ---
     try {
@@ -108,14 +136,14 @@ const getMyOrders = async (req, res) => {
 // @route   POST /api/orders/razorpay
 // @access  Private
 const createRazorpayOrder = async (req, res) => {
-  // 👉 implement Razorpay order creation here
+  // … implement Razorpay order creation here
 };
 
 // @desc    Verify Razorpay payment & update order status
 // @route   POST /api/orders/:id/pay
 // @access  Private
 const verifyPaymentAndUpdateOrder = async (req, res) => {
-  // 👉 implement Razorpay signature verification & order update here
+  // … implement Razorpay signature verification & order update here
 };
 
 // @desc    Get all orders (Admin)
@@ -155,8 +183,10 @@ const updateOrderToDelivered = async (req, res) => {
 // @access  Private/Seller
 const getMySales = async (req, res) => {
   try {
-    const orders = await Order.find({ 'orderItems.seller': req.user._id })
-      .populate('user', 'name email');
+    const orders = await Order.find({ 'orderItems.seller': req.user._id }).populate(
+      'user',
+      'name email'
+    );
     res.json(orders);
   } catch (error) {
     res.status(500).json({ message: `Server Error: ${error.message}` });
@@ -186,7 +216,10 @@ const updateOrderStatus = async (req, res) => {
     // --- SEND SHIPPING NOTIFICATION EMAIL ---
     if (updatedOrder.status === 'Shipped') {
       try {
-        const orderWithUser = await Order.findById(updatedOrder._id).populate('user', 'email');
+        const orderWithUser = await Order.findById(updatedOrder._id).populate(
+          'user',
+          'email'
+        );
         await sendEmail({
           to: orderWithUser.user.email,
           subject: `Your Order Has Shipped! - #${updatedOrder._id}`,

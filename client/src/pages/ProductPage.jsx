@@ -66,7 +66,9 @@ const ProductPage = () => {
   }, [productId, userInfo, refetch]);
 
   const addToCartHandler = () => {
-    if (product.category === 'Clothing' && !selectedSize) {
+    // --- BUG FIX: Allow adding clothing without variants to cart ---
+    // Only require a size selection if the product is 'Clothing' AND has variants.
+    if (product.category === 'Clothing' && product.variants && product.variants.length > 0 && !selectedSize) {
       alert('Please select a size');
       return;
     }
@@ -88,7 +90,6 @@ const ProductPage = () => {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${userInfo.token}`,
         },
-        // FIX: Change 'rating' to 'reviewRating' to match state variable
         body: JSON.stringify({ rating: reviewRating, comment }),
       });
       const data = await res.json();
@@ -168,10 +169,10 @@ const ProductPage = () => {
     const variant = product.variants?.find(v => v.size === size);
     return variant ? variant.countInStock : 0;
   };
-  
+
   if (loading) return <Loader />;
   if (error) return <div className="text-center py-12 text-red-500">Error: {error}</div>;
-  
+
   const maxQty = product.category === 'Clothing' && selectedSize ? getStockForSize(selectedSize) : product.countInStock;
 
   return (
@@ -227,7 +228,7 @@ const ProductPage = () => {
               <Rating value={product.rating} text={`${product.numReviews} reviews`} />
             </div>
             <p className="text-gray-600 leading-relaxed mb-6">{product.description}</p>
-            
+
             {product.variants && product.variants.length > 0 && (
               <div className="mb-6">
                 <span className="text-dark font-medium text-lg">Size:</span>
@@ -252,7 +253,7 @@ const ProductPage = () => {
                 </div>
               </div>
             )}
-            
+
             <div className="bg-secondary rounded-lg p-6">
               <div className="flex justify-between items-center mb-4">
                 <span className="text-gray-700 font-medium text-lg">Price:</span>

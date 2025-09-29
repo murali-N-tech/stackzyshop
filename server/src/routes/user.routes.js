@@ -4,13 +4,14 @@ import {
   registerUser,
   loginUser,
   getUserProfile,
+  updateUserProfile, // --- NEW: Import the update controller ---
   getUsers,
   deleteUser,
   toggleWishlist,
   forgotPassword,
   resetPassword,
   googleAuth,
-  phoneLogin,   // ✅ Use this instead of sendOtp/verifyOtp
+  phoneLogin,
 } from '../controllers/user.controller.js';
 import { protect, admin } from '../middlewares/auth.middleware.js';
 
@@ -23,7 +24,13 @@ router.delete('/:id', protect, admin, deleteUser);
 // --- PUBLIC & USER ROUTES ---
 router.post('/register', registerUser);
 router.post('/login', loginUser);
-router.get('/profile', protect, getUserProfile);
+
+// --- NEW: Combined GET and PUT for profile ---
+router
+    .route('/profile')
+    .get(protect, getUserProfile)
+    .put(protect, updateUserProfile); // --- NEW: Add the PUT route for updates ---
+
 router.put('/wishlist', protect, toggleWishlist);
 
 // --- PASSWORD RESET ROUTES ---
@@ -34,6 +41,6 @@ router.post('/reset-password', resetPassword);
 router.post('/google-auth', googleAuth);
 
 // --- PHONE AUTH ROUTE (Firebase) ---
-router.post('/phone-login', phoneLogin); // ✅ Firebase handles OTP automatically
+router.post('/phone-login', phoneLogin);
 
 export default router;

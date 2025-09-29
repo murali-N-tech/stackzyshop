@@ -239,13 +239,14 @@ export const resetPassword = async (req, res) => {
 // ===============================
 export const getUserProfile = async (req, res) => {
   try {
-    const user = req.user;
+    const user = await User.findById(req.user._id);
 
     if (user) {
       res.json({
         _id: user._id,
         name: user.name,
         email: user.email,
+        phoneNumber: user.phoneNumber,
         isAdmin: user.isAdmin,
         role: user.role,
         wishlist: user.wishlist || [],
@@ -257,6 +258,50 @@ export const getUserProfile = async (req, res) => {
     res.status(500).json({ message: `Server Error: ${error.message}` });
   }
 };
+
+// ===================================
+// 📌 UPDATE USER PROFILE (NEW FEATURE)
+// ===================================
+// @desc    Update user profile details
+// @route   PUT /api/users/profile
+// @access  Private
+export const updateUserProfile = async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id);
+
+        if (user) {
+            user.name = req.body.name || user.name;
+            user.email = req.body.email || user.email;
+            user.phoneNumber = req.body.phoneNumber || user.phoneNumber;
+
+            if (req.body.password) {
+                user.password = req.body.password;
+            }
+
+            const updatedUser = await user.save();
+            const token = generateToken(res, updatedUser._id);
+
+            res.json({
+                _id: updatedUser._id,
+                name: updatedUser.name,
+                email: updatedUser.email,
+                phoneNumber: updatedUser.phoneNumber,
+                isAdmin: updatedUser.isAdmin,
+                role: updatedUser.role,
+                token,
+            });
+        } else {
+            res.status(404).json({ message: 'User not found' });
+        }
+    } catch (error) {
+        // Handle potential duplicate email/phone errors
+        if (error.code === 11000) {
+            return res.status(400).json({ message: 'Email or Phone Number already in use.' });
+        }
+        res.status(500).json({ message: `Server Error: ${error.message}` });
+    }
+};
+
 
 // ===============================
 // 📌 GET ALL USERS (ADMIN)

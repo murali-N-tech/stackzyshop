@@ -1,13 +1,29 @@
 import React, { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { FaUserCircle, FaBoxOpen, FaSpinner } from 'react-icons/fa';
+import { FaUserCircle, FaBoxOpen, FaSpinner, FaEdit, FaSave, FaUser, FaEnvelope, FaPhone, FaLock } from 'react-icons/fa';
+import { setCredentials } from '../slices/authSlice';
 
 const ProfilePage = () => {
   const { userInfo } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
+
+  // State for form fields
+  const [name, setName] = useState(userInfo.name);
+  const [email, setEmail] = useState(userInfo.email);
+  const [phoneNumber, setPhoneNumber] = useState(userInfo.phoneNumber || '');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  
+  // State for UI
+  const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
+  const [updateLoading, setUpdateLoading] = useState(false);
+
+  // State for user orders
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [ordersError, setOrdersError] = useState(null);
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -23,28 +39,92 @@ const ProfilePage = () => {
         }
         setOrders(data);
       } catch (err) {
-        setError(err.message);
+        setOrdersError(err.message);
       } finally {
         setLoading(false);
       }
     };
     fetchOrders();
   }, [userInfo.token]);
+  
+  const submitHandler = async (e) => {
+      e.preventDefault();
+      if (password !== confirmPassword) {
+          setError('Passwords do not match');
+          return;
+      }
+      setUpdateLoading(true);
+      setError('');
+      setMessage('');
+      try {
+          const res = await fetch('/api/users/profile', {
+              method: 'PUT',
+              headers: {
+                  'Content-Type': 'application/json',
+                  Authorization: `Bearer ${userInfo.token}`
+              },
+              body: JSON.stringify({ name, email, phoneNumber, password })
+          });
+          const data = await res.json();
+          if (!res.ok) {
+              throw new Error(data.message || 'Failed to update profile');
+          }
+          dispatch(setCredentials(data));
+          setMessage('Profile updated successfully!');
+          setPassword('');
+          setConfirmPassword('');
+      } catch (err) {
+          setError(err.message);
+      } finally {
+          setUpdateLoading(false);
+      }
+  };
 
   return (
     <div className="container mx-auto mt-8 px-4 animation-fade-in">
       <div className="flex flex-col md:flex-row gap-8">
-        {/* Left Sidebar: User Info */}
-        <aside className="md:w-1/4">
-          <div className="bg-white p-6 rounded-lg shadow-lg text-center">
-            <FaUserCircle className="mx-auto text-6xl text-gray-400 mb-4" />
-            <h2 className="text-2xl font-bold text-gray-800">{userInfo.name}</h2>
-            <p className="text-gray-500">{userInfo.email}</p>
+        {/* Left Sidebar: User Info Form */}
+        <aside className="md:w-1/3 lg:w-1/4">
+          <div className="bg-white p-6 rounded-lg shadow-lg">
+            <div className="flex items-center gap-4 mb-4 border-b pb-4">
+                <FaUserCircle className="text-3xl text-blue-600"/>
+                <h2 className="text-2xl font-bold text-gray-800">My Profile</h2>
+            </div>
+
+            {message && <div className="p-3 mb-4 text-sm text-green-700 bg-green-100 rounded-lg">{message}</div>}
+            {error && <div className="p-3 mb-4 text-sm text-red-700 bg-red-100 rounded-lg">{error}</div>}
+
+            <form onSubmit={submitHandler} className="space-y-4">
+                <div>
+                    <label className="flex items-center text-sm font-medium text-gray-600 mb-1"><FaUser className="mr-2"/>Name</label>
+                    <input type="text" value={name} onChange={(e) => setName(e.target.value)} className="w-full p-2 border rounded-md"/>
+                </div>
+                <div>
+                    <label className="flex items-center text-sm font-medium text-gray-600 mb-1"><FaEnvelope className="mr-2"/>Email Address</label>
+                    <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full p-2 border rounded-md"/>
+                </div>
+                <div>
+                    <label className="flex items-center text-sm font-medium text-gray-600 mb-1"><FaPhone className="mr-2"/>Phone Number</label>
+                    <input type="tel" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} className="w-full p-2 border rounded-md" placeholder="Add your phone number"/>
+                </div>
+                 <div>
+                    <label className="flex items-center text-sm font-medium text-gray-600 mb-1"><FaLock className="mr-2"/>New Password</label>
+                    <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full p-2 border rounded-md" placeholder="Leave blank to keep the same"/>
+                </div>
+                <div>
+                    <label className="flex items-center text-sm font-medium text-gray-600 mb-1"><FaLock className="mr-2"/>Confirm New Password</label>
+                    <input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="w-full p-2 border rounded-md"/>
+                </div>
+                <button type="submit" disabled={updateLoading} className="w-full bg-blue-600 text-white p-3 rounded-md mt-4 hover:bg-blue-700 disabled:bg-blue-400 flex items-center justify-center">
+                    {updateLoading ? <FaSpinner className="animate-spin"/> : <FaSave className="mr-2"/>}
+                    Update Profile
+                </button>
+            </form>
           </div>
         </aside>
 
         {/* Right Content: Order History */}
-        <main className="md:w-3/4">
+        <main className="md:w-2/3 lg:w-3/4">
           <div className="bg-white p-6 rounded-lg shadow-lg">
             <div className="flex items-center gap-4 mb-6 border-b pb-4">
               <FaBoxOpen className="text-2xl text-blue-600" />
@@ -55,8 +135,8 @@ const ProfilePage = () => {
               <div className="flex justify-center items-center py-12">
                 <FaSpinner className="animate-spin text-blue-600 text-3xl" />
               </div>
-            ) : error ? (
-              <div className="text-red-500 bg-red-50 p-4 rounded-lg">{error}</div>
+            ) : ordersError ? (
+              <div className="text-red-500 bg-red-50 p-4 rounded-lg">{ordersError}</div>
             ) : (
               <div className="overflow-x-auto">
                 {orders.length === 0 ? (
