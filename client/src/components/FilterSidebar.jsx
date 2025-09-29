@@ -40,7 +40,7 @@ const FilterSidebar = ({ onFilterChange }) => {
         <ul className="space-y-2">
           {categories.map((category) => (
             <li key={category}>
-              <button onClick={() => handleFilterClick('category', category)} className="text-gray-700 hover:text-blue-600 w-full text-left">
+              <button onClick={() => handleFilterClick('category', category)} className="text-gray-700 hover:text-primary w-full text-left">
                 {category}
               </button>
             </li>
@@ -52,7 +52,7 @@ const FilterSidebar = ({ onFilterChange }) => {
         <ul className="space-y-2">
           {brands.map((brand) => (
             <li key={brand}>
-              <button onClick={() => handleFilterClick('brand', brand)} className="text-gray-700 hover:text-blue-600 w-full text-left">
+              <button onClick={() => handleFilterClick('brand', brand)} className="text-gray-700 hover:text-primary w-full text-left">
                 {brand}
               </button>
             </li>
@@ -78,7 +78,7 @@ const FilterSidebar = ({ onFilterChange }) => {
             className="w-full p-2 border rounded-md"
           />
         </div>
-        <button onClick={handlePriceChange} className="mt-4 w-full bg-blue-600 text-white py-2 rounded-md">
+        <button onClick={handlePriceChange} className="mt-4 w-full bg-primary text-white py-2 rounded-md">
           Apply Price
         </button>
       </div>
@@ -88,12 +88,12 @@ const FilterSidebar = ({ onFilterChange }) => {
         <h3 className="font-bold text-lg mb-4 border-b pb-2">Seller Rating</h3>
         <ul className="space-y-2">
           <li>
-            <button onClick={() => handleFilterClick('minRating', 4)} className="text-gray-700 hover:text-blue-600 w-full text-left">
+            <button onClick={() => handleFilterClick('minRating', 4)} className="text-gray-700 hover:text-primary w-full text-left">
               4 Stars & up
             </button>
           </li>
           <li>
-            <button onClick={() => handleFilterClick('minRating', 3)} className="text-gray-700 hover:text-blue-600 w-full text-left">
+            <button onClick={() => handleFilterClick('minRating', 3)} className="text-gray-700 hover:text-primary w-full text-left">
               3 Stars & up
             </button>
           </li>

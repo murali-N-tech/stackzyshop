@@ -7,14 +7,14 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: '#3B82F6',
-        secondary: '#F3F4F6',
-        accent: '#10B981',
-        dark: '#111827',
-        light: '#F9FAFB',
+        primary: '#2874f0',
+        secondary: '#f1f3f6',
+        accent: '#fb641b',
+        dark: '#212121',
+        light: '#ffffff',
       },
       fontFamily: {
-        sans: ['Poppins', 'sans-serif'],
+        sans: ['Roboto', 'sans-serif'],
       },
       keyframes: {
         fadeIn: {

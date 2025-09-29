@@ -55,7 +55,7 @@ const OrderPage = () => {
 
   const Loader = () => (
     <div className="flex justify-center items-center h-screen">
-      <FaSpinner className="animate-spin text-blue-600 text-5xl" />
+      <FaSpinner className="animate-spin text-primary text-5xl" />
     </div>
   );
 
@@ -95,7 +95,7 @@ const OrderPage = () => {
                   <div>
                     <Link
                       to={`/product/${item.product}`}
-                      className="font-semibold text-gray-800 hover:text-blue-600"
+                      className="font-semibold text-dark hover:text-primary"
                     >
                       {item.name}
                     </Link>
@@ -146,7 +146,7 @@ const OrderPage = () => {
             <p className="text-gray-700">{order.user.name}</p>
             <a
               href={`mailto:${order.user.email}`}
-              className="text-blue-600 hover:underline"
+              className="text-primary hover:underline"
             >
               {order.user.email}
             </a>
@@ -162,7 +162,6 @@ const OrderPage = () => {
               {order.shippingAddress.postalCode},{' '}
               {order.shippingAddress.country}
             </p>
-            {/* --- NEW: Display phone number --- */}
             {order.shippingAddress.phone && (
               <p className="text-gray-700 mt-2 flex items-center">
                 <FaPhone className="mr-2 text-gray-400" />

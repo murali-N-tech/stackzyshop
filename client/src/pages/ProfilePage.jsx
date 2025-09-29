@@ -87,8 +87,8 @@ const ProfilePage = () => {
         <aside className="md:w-1/3 lg:w-1/4">
           <div className="bg-white p-6 rounded-lg shadow-lg">
             <div className="flex items-center gap-4 mb-4 border-b pb-4">
-                <FaUserCircle className="text-3xl text-blue-600"/>
-                <h2 className="text-2xl font-bold text-gray-800">My Profile</h2>
+                <FaUserCircle className="text-3xl text-primary"/>
+                <h2 className="text-2xl font-bold text-dark">My Profile</h2>
             </div>
 
             {message && <div className="p-3 mb-4 text-sm text-green-700 bg-green-100 rounded-lg">{message}</div>}
@@ -115,7 +115,7 @@ const ProfilePage = () => {
                     <label className="flex items-center text-sm font-medium text-gray-600 mb-1"><FaLock className="mr-2"/>Confirm New Password</label>
                     <input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="w-full p-2 border rounded-md"/>
                 </div>
-                <button type="submit" disabled={updateLoading} className="w-full bg-blue-600 text-white p-3 rounded-md mt-4 hover:bg-blue-700 disabled:bg-blue-400 flex items-center justify-center">
+                <button type="submit" disabled={updateLoading} className="w-full bg-primary text-white p-3 rounded-md mt-4 hover:bg-blue-700 disabled:bg-blue-400 flex items-center justify-center">
                     {updateLoading ? <FaSpinner className="animate-spin"/> : <FaSave className="mr-2"/>}
                     Update Profile
                 </button>
@@ -127,13 +127,13 @@ const ProfilePage = () => {
         <main className="md:w-2/3 lg:w-3/4">
           <div className="bg-white p-6 rounded-lg shadow-lg">
             <div className="flex items-center gap-4 mb-6 border-b pb-4">
-              <FaBoxOpen className="text-2xl text-blue-600" />
-              <h2 className="text-2xl font-bold text-gray-800">My Orders</h2>
+              <FaBoxOpen className="text-2xl text-primary" />
+              <h2 className="text-2xl font-bold text-dark">My Orders</h2>
             </div>
 
             {loading ? (
               <div className="flex justify-center items-center py-12">
-                <FaSpinner className="animate-spin text-blue-600 text-3xl" />
+                <FaSpinner className="animate-spin text-primary text-3xl" />
               </div>
             ) : ordersError ? (
               <div className="text-red-500 bg-red-50 p-4 rounded-lg">{ordersError}</div>
@@ -169,7 +169,7 @@ const ProfilePage = () => {
                           </td>
                           <td className="px-5 py-4 text-sm">
                             <Link to={`/order/${order._id}`}>
-                              <button className="text-blue-600 hover:text-blue-800 font-semibold">Details</button>
+                              <button className="text-primary hover:text-blue-800 font-semibold">Details</button>
                             </Link>
                           </td>
                         </tr>

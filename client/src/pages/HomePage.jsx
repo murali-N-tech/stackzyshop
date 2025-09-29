@@ -6,61 +6,51 @@ import ProductCarousel from '../components/ProductCarousel';
 import Meta from '../components/Meta';
 import FilterSidebar from '../components/FilterSidebar';
 import { FaSpinner } from 'react-icons/fa';
+import useSWR from 'swr';
+
+const fetcher = (url) => fetch(url).then((res) => res.json());
 
 const HomePage = () => {
   const { keyword, pageNumber } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
 
-  const [products, setProducts] = useState([]);
-  const [page, setPage] = useState(1);
-  const [pages, setPages] = useState(1);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const category = params.get('category') || '';
-    const brand = params.get('brand') || '';
-    const minPrice = params.get('minPrice') || '';
-    const maxPrice = params.get('maxPrice') || '';
-    const sort = params.get('sort') || '';
-    
-    const fetchProducts = async () => {
-      setLoading(true);
-      try {
-        const res = await fetch(`/api/products?keyword=${keyword || ''}&pageNumber=${pageNumber || 1}&category=${category}&brand=${brand}&minPrice=${minPrice}&maxPrice=${maxPrice}&sort=${sort}`);
-        if (!res.ok) throw new Error('Network response was not ok');
-        const data = await res.json();
-        setProducts(data.products);
-        setPage(data.page);
-        setPages(data.pages);
-      } catch (error) {
-        setError(error.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchProducts();
-  }, [keyword, pageNumber, location.search]);
+  // Build the API URL from search params
+  const params = new URLSearchParams(location.search);
+  const category = params.get('category') || '';
+  const brand = params.get('brand') || '';
+  const minPrice = params.get('minPrice') || '';
+  const maxPrice = params.get('maxPrice') || '';
+  const sort = params.get('sort') || '';
+  
+  const apiUrl = `/api/products?keyword=${keyword || ''}&pageNumber=${pageNumber || 1}&category=${category}&brand=${brand}&minPrice=${minPrice}&maxPrice=${maxPrice}&sort=${sort}`;
+  
+  const { data, error } = useSWR(apiUrl, fetcher);
+  const loading = !data && !error;
 
   const handleFilterChange = (filterType, value) => {
     const params = new URLSearchParams(location.search);
     
     if (filterType === 'clear') {
       navigate(keyword ? `/search/${keyword}` : '/');
-    } else if (filterType === 'price') {
+      return;
+    } 
+    
+    if (filterType === 'price') {
       params.set('minPrice', value.min);
       params.set('maxPrice', value.max);
     } else {
+      // Toggle behavior for category and brand filters
       if (params.get(filterType) === value) {
         params.delete(filterType);
       } else {
         params.set(filterType, value);
       }
     }
-      const path = keyword ? `/search/${keyword}` : '';
-      navigate(`${path}?${params.toString()}`);
+    
+    // Reset page number when filters change
+    const path = keyword ? `/search/${keyword}` : '';
+    navigate(`${path}?${params.toString()}`);
   };
 
   const handleSortChange = (sortValue) => {
@@ -80,19 +70,26 @@ const HomePage = () => {
   return (
     <>
       <Meta />
+      {/* Show carousel only on the main homepage, not on search or filter results */}
       {!keyword && !location.search && <ProductCarousel />}
       
       <div className="container mx-auto py-8 grid grid-cols-1 lg:grid-cols-4 gap-8 px-4">
+        {/* --- FILTER SIDEBAR --- */}
         <div className="lg:col-span-1">
           <FilterSidebar onFilterChange={handleFilterChange} />
         </div>
 
+        {/* --- MAIN CONTENT (PRODUCTS) --- */}
         <div className="lg:col-span-3">
-          <div className="flex justify-between items-center mb-8">
-            <h1 className="text-3xl font-bold text-dark">
-              {keyword ? `Search Results for "${keyword}"` : 'Latest Products'}
+          <div className="flex justify-between items-center mb-8 bg-white p-4 rounded-lg shadow-sm">
+            <h1 className="text-xl md:text-2xl font-bold text-dark">
+              {keyword ? `Results for "${keyword}"` : 'All Products'}
             </h1>
-            <select onChange={(e) => handleSortChange(e.target.value)} className="p-2 border rounded-md">
+            <select 
+              onChange={(e) => handleSortChange(e.target.value)} 
+              className="p-2 border rounded-md text-sm"
+              value={sort}
+            >
               <option value="">Sort By</option>
               <option value="price-asc">Price: Low to High</option>
               <option value="price-desc">Price: High to Low</option>
@@ -102,26 +99,26 @@ const HomePage = () => {
           
           {loading ? (
             <Loader />
-          ) : error ? (
-            <div className="bg-red-100 text-red-700 p-4 rounded-lg">{error}</div>
+          ) : error || !data ? (
+            <div className="bg-red-100 text-red-700 p-4 rounded-lg">Failed to load products.</div>
           ) : (
             <>
-              {products.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
-                  {products.map((product) => (
+              {data.products.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                  {data.products.map((product) => (
                     <div key={product._id} className="animation-fade-in">
                       <Product product={product} />
                     </div>
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-20 bg-secondary rounded-lg">
+                <div className="text-center py-20 bg-white rounded-lg shadow-md">
                   <h2 className="text-2xl font-semibold text-dark">No Products Found</h2>
                   <p className="text-gray-500 mt-2">Try adjusting your search or filters.</p>
                 </div>
               )}
               <div className="mt-12">
-                <Paginate pages={pages} page={page} keyword={keyword ? keyword : ''} />
+                <Paginate pages={data.pages} page={data.page} keyword={keyword ? keyword : ''} />
               </div>
             </>
           )}
